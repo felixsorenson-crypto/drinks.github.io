@@ -32,9 +32,22 @@
       margin: 10px 0;
       background: #fff;
     }
-    .possible { background: #c8f7c5; } /* Grön */
-    .almost { background: #fff5c4; }   /* Gul */
+    .possible { background: #c8f7c5; }
+    .almost { background: #fff5c4; }
     .missing { background: #f0f0f0; }
+    .details {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .drink.open .details {
+      display: block;
+    }
+    .drink strong {
+      cursor: pointer;
+      display: inline-block;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -50,22 +63,78 @@
       "Alkohol": ["Vodka", "Gin", "Rom", "Whisky", "Tequila", "Cointreau"],
       "Juice / Frukt": ["Limejuice", "Citronjuice", "Apelsinjuice", "Ananasjuice"],
       "Sötning": ["Sockerlag", "Grenadin"],
-      "Övrigt": ["Is", "Mynta", "Sodavatten", "Tonic"]
+      "Övrigt": ["Mynta", "Sodavatten", "Tonic"]
     };
 
     const drinks = [
-      { name: "Margarita", ingredients: ["Tequila", "Cointreau", "Limejuice"] },
-      { name: "Mojito", ingredients: ["Rom", "Limejuice", "Mynta", "Sodavatten", "Sockerlag"] },
-      { name: "Whisky Sour", ingredients: ["Whisky", "Citronjuice", "Sockerlag"] },
-      { name: "Vodka Tonic", ingredients: ["Vodka", "Tonic", "Is"] },
-      { name: "Tequila Sunrise", ingredients: ["Tequila", "Apelsinjuice", "Grenadin", "Is"] },
-      { name: "Gin Fizz", ingredients: ["Gin", "Citronjuice", "Sockerlag", "Sodavatten", "Is"] }
+      { 
+        name: "Margarita", 
+        ingredients: ["Tequila", "Cointreau", "Limejuice"], 
+        recipe: [
+          { item: "Tequila", amount: "4 cl" },
+          { item: "Cointreau", amount: "2 cl" },
+          { item: "Limejuice", amount: "2 cl" }
+        ],
+        steps: "Skaka alla ingredienser med is och sila upp i kyld cocktailglas. Garnera med limeklyfta."
+      },
+      { 
+        name: "Mojito", 
+        ingredients: ["Rom", "Limejuice", "Mynta", "Sodavatten", "Sockerlag"], 
+        recipe: [
+          { item: "Rom", amount: "5 cl" },
+          { item: "Limejuice", amount: "3 cl" },
+          { item: "Sockerlag", amount: "2 cl" },
+          { item: "Mynta", amount: "8 blad" },
+          { item: "Sodavatten", amount: "Toppa upp" }
+        ],
+        steps: "Muddla mynta, sockerlag och limejuice i glaset. Fyll på med rom och sodavatten. Rör om försiktigt."
+      },
+      { 
+        name: "Whisky Sour", 
+        ingredients: ["Whisky", "Citronjuice", "Sockerlag"], 
+        recipe: [
+          { item: "Whisky", amount: "5 cl" },
+          { item: "Citronjuice", amount: "3 cl" },
+          { item: "Sockerlag", amount: "2 cl" }
+        ],
+        steps: "Skaka alla ingredienser med is och sila upp i glas med is. Garnera med citronskiva."
+      },
+      { 
+        name: "Vodka Tonic", 
+        ingredients: ["Vodka", "Tonic"], 
+        recipe: [
+          { item: "Vodka", amount: "5 cl" },
+          { item: "Tonic", amount: "Toppa upp" }
+        ],
+        steps: "Fyll glas med is, häll i vodka och toppa med tonic. Rör om lätt."
+      },
+      { 
+        name: "Tequila Sunrise", 
+        ingredients: ["Tequila", "Apelsinjuice", "Grenadin"], 
+        recipe: [
+          { item: "Tequila", amount: "4 cl" },
+          { item: "Apelsinjuice", amount: "10 cl" },
+          { item: "Grenadin", amount: "1 cl" }
+        ],
+        steps: "Häll tequila och apelsinjuice i glas med is. Tillsätt grenadin försiktigt så den sjunker till botten."
+      },
+      { 
+        name: "Gin Fizz", 
+        ingredients: ["Gin", "Citronjuice", "Sockerlag", "Sodavatten"], 
+        recipe: [
+          { item: "Gin", amount: "4 cl" },
+          { item: "Citronjuice", amount: "3 cl" },
+          { item: "Sockerlag", amount: "2 cl" },
+          { item: "Sodavatten", amount: "Toppa upp" }
+        ],
+        steps: "Skaka gin, citronjuice och sockerlag med is. Sila i glas och toppa med sodavatten."
+      }
     ];
 
     const ingredientsDiv = document.getElementById('ingredients');
     const resultsDiv = document.getElementById('results');
 
-    // Skapa checkboxar för varje kategori
+    // skapa checkboxar
     for (const [cat, items] of Object.entries(categories)) {
       const div = document.createElement('div');
       div.className = 'category';
@@ -85,21 +154,36 @@
       const selected = Array.from(document.querySelectorAll('input:checked')).map(cb => cb.value);
       resultsDiv.innerHTML = '';
 
-      drinks.forEach(drink => {
+      // sortera så att de man kan göra hamnar överst
+      const sortedDrinks = [...drinks].sort((a, b) => {
+        const missA = a.ingredients.filter(i => !selected.includes(i)).length;
+        const missB = b.ingredients.filter(i => !selected.includes(i)).length;
+        return missA - missB;
+      });
+
+      sortedDrinks.forEach(drink => {
         const missing = drink.ingredients.filter(i => !selected.includes(i));
         const div = document.createElement('div');
         div.classList.add('drink');
 
-        if (missing.length === 0) {
-          div.classList.add('possible');
-          div.innerHTML = `✅ <strong>${drink.name}</strong> – du har allt!`;
-        } else if (missing.length <= 2) {
-          div.classList.add('almost');
-          div.innerHTML = `🟡 <strong>${drink.name}</strong> – saknar: ${missing.join(', ')}`;
-        } else {
-          div.classList.add('missing');
-          div.innerHTML = `❌ <strong>${drink.name}</strong> – saknar: ${missing.join(', ')}`;
-        }
+        if (missing.length === 0) div.classList.add('possible');
+        else if (missing.length <= 2) div.classList.add('almost');
+        else div.classList.add('missing');
+
+        div.innerHTML = `<strong>${drink.name}</strong>`;
+        
+        const details = document.createElement('div');
+        details.className = 'details';
+        details.innerHTML = `
+          <h4>Recept:</h4>
+          <ul>${drink.recipe.map(r => `<li>${r.amount} ${r.item}</li>`).join('')}</ul>
+          <p><em>${drink.steps}</em></p>
+        `;
+        div.appendChild(details);
+
+        div.querySelector('strong').addEventListener('click', () => {
+          div.classList.toggle('open');
+        });
 
         resultsDiv.appendChild(div);
       });
