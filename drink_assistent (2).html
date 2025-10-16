@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drinkassistent 🍸</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #fafafa;
+      color: #333;
+    }
+    h1 { text-align: center; }
+    .ingredients, .results {
+      margin-top: 20px;
+      padding: 10px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .category {
+      margin-top: 10px;
+    }
+    .drink {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    .drink:hover {
+      background: #f2f2f2;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍹 Drinkassistent</h1>
+  <div class="ingredients">
+    <h3>Vilka ingredienser har du hemma?</h3>
+    <div class="category">
+      <strong>Alkohol</strong><br>
+      <label><input type="checkbox" value="rom"> Rom</label><br>
+      <label><input type="checkbox" value="gin"> Gin</label><br>
+      <label><input type="checkbox" value="tequila"> Tequila</label><br>
+      <label><input type="checkbox" value="cointreau"> Cointreau</label><br>
+      <label><input type="checkbox" value="vodka"> Vodka</label><br>
+      <label><input type="checkbox" value="whiskey"> Whiskey</label><br>
+    </div>
+    <div class="category">
+      <strong>Frukt</strong><br>
+      <label><input type="checkbox" value="lime"> Lime</label><br>
+      <label><input type="checkbox" value="citron"> Citron</label><br>
+      <label><input type="checkbox" value="apelsin"> Apelsin</label><br>
+    </div>
+    <div class="category">
+      <strong>Övrigt</strong><br>
+      <label><input type="checkbox" value="sockerlag"> Sockerlag</label><br>
+      <label><input type="checkbox" value="tonic"> Tonic</label><br>
+      <label><input type="checkbox" value="salt"> Salt</label><br>
+      <label><input type="checkbox" value="cola"> Cola</label><br>
+      <label><input type="checkbox" value="soda"> Sodavatten</label><br>
+    </div>
+    <button id="checkDrinks">Visa möjliga drinkar</button>
+  </div>
+
+  <div class="results">
+    <h3>Möjliga drinkar</h3>
+    <div id="drinkList"></div>
+  </div>
+
+  <script>
+    const drinks = [
+      { name: "Mojito", ingredients: ["rom", "lime", "sockerlag", "soda"], recipe: "Mosa lime och mynta, tillsätt rom och sockerlag, fyll på med sodavatten och is." },
+      { name: "Gin & Tonic", ingredients: ["gin", "tonic", "lime"], recipe: "Fyll glaset med is, tillsätt gin och tonic. Garnera med en limeklyfta." },
+      { name: "Margarita", ingredients: ["tequila", "cointreau", "lime", "salt"], recipe: "Skaka tequila, cointreau och limejuice med is. Sila upp i glas med saltad kant." },
+      { name: "Whiskey Sour", ingredients: ["whiskey", "citron", "sockerlag"], recipe: "Skaka whiskey, citronjuice och sockerlag med is. Sila upp i glas med is." },
+      { name: "Cuba Libre", ingredients: ["rom", "cola", "lime"], recipe: "Fyll glas med is, tillsätt rom och cola. Pressa i limeklyfta." },
+      { name: "Screwdriver", ingredients: ["vodka", "apelsin"], recipe: "Fyll glas med is, tillsätt vodka och apelsinjuice." },
+      { name: "Tom Collins", ingredients: ["gin", "citron", "sockerlag", "soda"], recipe: "Skaka gin, citronjuice och sockerlag med is. Häll över i glas och fyll på med sodavatten." }
+    ];
+
+    document.getElementById('checkDrinks').addEventListener('click', () => {
+      const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+      const drinkList = document.getElementById('drinkList');
+      drinkList.innerHTML = '';
+
+      const complete = drinks.filter(drink => drink.ingredients.every(i => selected.includes(i)));
+      const partial = drinks.filter(drink => drink.ingredients.some(i => selected.includes(i)) && !drink.ingredients.every(i => selected.includes(i)));
+
+      if (complete.length === 0 && partial.length === 0) {
+        drinkList.innerHTML = '<p>Inga matchande drinkar hittades. Prova att lägga till fler ingredienser.</p>';
+      }
+
+      if (complete.length > 0) {
+        const h = document.createElement('p');
+        h.innerHTML = '<strong>Du kan göra dessa drinkar:</strong>';
+        drinkList.appendChild(h);
+        complete.forEach(drink => {
+          const div = document.createElement('div');
+          div.className = 'drink';
+          div.innerHTML = `<strong>${drink.name}</strong>`;
+          div.onclick = () => alert(`${drink.name}:\n\n${drink.recipe}`);
+          drinkList.appendChild(div);
+        });
+      }
+
+      if (partial.length > 0) {
+        const h2 = document.createElement('p');
+        h2.innerHTML = '<strong>Drinks du nästan kan göra (saknar några ingredienser):</strong>';
+        drinkList.appendChild(h2);
+        partial.forEach(drink => {
+          const missing = drink.ingredients.filter(i => !selected.includes(i));
+          const div = document.createElement('div');
+          div.className = 'drink';
+          div.innerHTML = `<strong>${drink.name}</strong> (saknar: ${missing.join(', ')})`;
+          div.onclick = () => alert(`${drink.name}:\n\n${drink.recipe}`);
+          drinkList.appendChild(div);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
