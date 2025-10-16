@@ -53,44 +53,43 @@ label { display: block; cursor: pointer; }
 <script>
 const categories = {
   "Alkohol": [
-    "Vodka", "Gin", "Rom", "Whisky", "Tequila", "Cointreau", "Triple Sec", "Amaretto", "Kahlua", 
-    "Campari", "Aperol", "Midori", "Peach Schnapps", "Baileys", "Cognac", "Scotch", "Cherry Brandy", "Benedictine", "Maraschino", "Cachaca"
+    "Vodka", "Gin", "Ljus Rom", "Whisky", "Tequila", "Cointreau", "Amaretto", "Kahlua", 
+    "Campari", "Aperol", "Midori", "Peach Schnapps", "Baileys", "Cognac", "Scotch", "Cherry Brandy", "Benedictine", "Maraschino", "Cachaca", "Dry Vermouth"
   ],
   "Juice": [
     "Apelsinjuice", "Ananasjuice", "Tranbärsjuice", "Grapefruktjuice", "Limejuice", "Citronjuice", "Jordgubbspuré", "Tomatjuice"
   ],
   "Frukt / Garnering": [
-    "Limeklyfta", "Apelsinskiva", "Körsbär", "Mynta", "Citronklyfta", "Selleristjälk"
+    "Limeklyfta", "Apelsinskiva", "Körsbär", "Mynta", "Citronklyfta", "Selleristjälk", "Oliv"
   ],
   "Sötning": [
     "Sockerlag", "Grenadin", "Hallonsirap", "Orgeat", "Grön Äppelsirap"
   ],
   "Övrigt": [
-    "Sodavatten", "Tonic", "Cola", "Ginger Beer", "Kaffe", "Grädde", "Is", "Äggvita"
+    "Sodavatten", "Tonic", "Cola", "Ginger Beer", "Kaffe", "Mjölk", "Is", "Äggvita"
   ]
 };
 
 // Exempel med några drinkar, resten fylls på likadant
 const drinks = [
-  { name:"Gin & Tonic", ingredients:["Gin","Tonic","Limeklyfta"], recipe:[{item:"Gin",amount:"4 cl"},{item:"Tonic",amount:"Toppa upp"}], steps:"Fyll glas med is, häll gin, toppa med tonic, garnera med limeklyfta." },
-  { name:"Screwdriver", ingredients:["Vodka","Apelsinjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Apelsinjuice",amount:"10 cl"}], steps:"Fyll glas med is, häll vodka och apelsinjuice, rör om." },
-  { name:"Cuba Libre", ingredients:["Rom","Cola","Limeklyfta"], recipe:[{item:"Rom",amount:"4 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Fyll glas med is, häll rom, toppa med cola, garnera med limeklyfta." },
-  { name:"Tequila Sunrise", ingredients:["Tequila","Apelsinjuice","Grenadin","Apelsinskiva"], recipe:[{item:"Tequila",amount:"4 cl"},{item:"Apelsinjuice",amount:"10 cl"},{item:"Grenadin",amount:"1 cl"}], steps:"Häll tequila och apelsinjuice i glas med is, tillsätt grenadin försiktigt, garnera med apelsinskiva." },
-  { name:"Black Russian", ingredients:["Vodka","Kahlua"], recipe:[{item:"Vodka",amount:"5 cl"},{item:"Kahlua",amount:"2 cl"}], steps:"Fyll glas med is, häll vodka och Kahlua, rör om." },
-  { name:"White Russian", ingredients:["Vodka","Kahlua","Grädde"], recipe:[{item:"Vodka",amount:"5 cl"},{item:"Kahlua",amount:"2 cl"},{item:"Grädde",amount:"2 cl"}], steps:"Fyll glas med is, häll vodka och Kahlua, toppa med grädde och rör om lätt." },
-  { name:"Moscow Mule", ingredients:["Vodka","Limejuice","Ginger Beer","Limeklyfta"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Limejuice",amount:"2 cl"},{item:"Ginger Beer",amount:"Toppa upp"}], steps:"Fyll mugg med is, häll vodka och limejuice, toppa med ginger beer, garnera med limeklyfta." },
-  { name:"Woo Woo", ingredients:["Vodka","Peach Schnapps","Tranbärsjuice"], recipe:[{item:"Vodka",amount:"2 cl"},{item:"Peach Schnapps",amount:"2 cl"},{item:"Tranbärsjuice",amount:"6 cl"}], steps:"Fyll glas med is, häll vodka och Peach Schnapps, toppa med tranbärsjuice." },
-  { name:"Seabreeze", ingredients:["Vodka","Tranbärsjuice","Grapefruktjuice","Limeklyfta"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Tranbärsjuice",amount:"6 cl"},{item:"Grapefruktjuice",amount:"4 cl"}], steps:"Fyll glas med is, häll vodka, tranbärsjuice och grapefruktjuice, garnera med limeklyfta." },
-  { name:"Screaming Orgasm", ingredients:["Vodka","Kahlua","Baileys","Amaretto"], recipe:[{item:"Vodka",amount:"2 cl"},{item:"Kahlua",amount:"2 cl"},{item:"Baileys",amount:"2 cl"},{item:"Amaretto",amount:"2 cl"}], steps:"Fyll glas med is, häll alla ingredienser, rör om." },
-  { name:"El Diablo", ingredients:["Tequila","Crème de Cassis","Limejuice","Ginger Beer","Limeklyfta"], recipe:[{item:"Tequila",amount:"4 cl"},{item:"Crème de Cassis",amount:"1 cl"},{item:"Limejuice",amount:"1 cl"},{item:"Ginger Beer",amount:"Toppa upp"}], steps:"Fyll glas med is, häll tequila, Crème de Cassis och limejuice, toppa med ginger beer, garnera med limeklyfta." },
-  { name:"Sex on the Beach", ingredients:["Vodka","Peach Schnapps","Tranbärsjuice","Apelsinjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Peach Schnapps",amount:"2 cl"},{item:"Tranbärsjuice",amount:"4 cl"},{item:"Apelsinjuice",amount:"4 cl"}], steps:"Fyll glas med is, häll vodka och Peach Schnapps, toppa med tranbärs- och apelsinjuice." },
-  { name:"Cosmopolitan", ingredients:["Vodka","Cointreau","Tranbärsjuice","Limejuice","Limeklyfta"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Tranbärsjuice",amount:"2 cl"},{item:"Limejuice",amount:"1 cl"}], steps:"Skaka alla ingredienser med is, sila upp i kylt cocktailglas, garnera med limeklyfta." },
-  { name:"Daiquiri", ingredients:["Rom","Limejuice","Sockerlag"], recipe:[{item:"Rom",amount:"4 cl"},{item:"Limejuice",amount:"2 cl"},{item:"Sockerlag",amount:"2 cl"}], steps:"Skaka alla ingredienser med is, sila upp i kylt glas." },
+  { name:"Gin & Tonic", ingredients:["Gin","Tonic","Limeklyfta"], recipe:[{item:"Gin",amount:"4 cl"},{item:"Tonic",amount:"Toppa upp"}], steps:"Fyll glas med is, häll gin, toppa med tonic. Garnera med limeklyfta." },
+  { name:"Screwdriver", ingredients:["Vodka","Apelsinjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Apelsinjuice",amount:"Toppa upp"}], steps:"Fyll glas med is, häll vodka, toppa med apelsinjuice, rör om." },
+  { name:"Cuba Libre", ingredients:["Ljus Rom","Cola","Limeklyfta"], recipe:[{item:"Ljus Rom",amount:"4 cl"},{item:"Lime juice",amount:"1 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Fyll glas med is, häll ljus rom, lime juice och toppa med cola. Garnera med limeklyfta." },
+  { name:"Tequila Sunrise", ingredients:["Tequila","Apelsinjuice","Grenadin","Apelsinskiva"], recipe:[{item:"Tequila",amount:"4 cl"},{item:"Apelsinjuice",amount:"Toppa upp"},{item:"Grenadin",amount:"1 cl"}], steps:"Häll tequila och apelsinjuice i glas med is, tillsätt grenadin försiktigt. Garnera med apelsinskiva." },
+  { name:"Black Russian", ingredients:["Vodka","Kahlua"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Kahlua",amount:"2 cl"}], steps:"Fyll glas med is, häll vodka och Kahlua, rör om." },
+  { name:"White Russian", ingredients:["Vodka","Kahlua","Mjölk"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Kahlua",amount:"2 cl"},{item:"Mjölk",amount:"Toppa upp"}], steps:"Fyll glas med is, häll vodka och Kahlua, toppa med mjölk och rör om lätt." },
+  { name:"Moscow Mule", ingredients:["Vodka","Limejuice","Ginger Beer","Limeklyfta"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Limejuice",amount:"2 cl"},{item:"Ginger Beer",amount:"Toppa upp"}], steps:"Fyll glas med is, häll vodka och limejuice, toppa med ginger beer. Garnera med limeklyfta." },
+  { name:"Seabreeze", ingredients:["Vodka","Tranbärsjuice","Grapefruktjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Tranbärsjuice",amount:"6 cl"},{item:"Grapefruktjuice",amount:"4 cl"}], steps:"Fyll glas med is, häll vodka, tranbärsjuice och grapefruktjuice." },
+  { name:"Screaming Orgasm", ingredients:["Vodka","Kahlua","Baileys","Amaretto", "Mjölk"], recipe:[{item:"Vodka",amount:"1 cl"},{item:"Kahlua",amount:"1 cl"},{item:"Baileys",amount:"1 cl"},{item:"Amaretto",amount:"1 cl"},{item:"Mjölk",amount:"4 cl"}], steps:"Fyll glas med is, häll alla ingredienser, rör om." },
+  { name:"El Diablo", ingredients:["Tequila","Crème de Cassis","Limejuice","Ginger Beer","Limeklyfta"], recipe:[{item:"Tequila",amount:"4 cl"},{item:"Crème de Cassis",amount:"1 cl"},{item:"Limejuice",amount:"1 cl"},{item:"Ginger Beer",amount:"Toppa upp"}], steps:"Fyll glas med is, häll tequila, Crème de Cassis och limejuice, toppa med ginger beer. Garnera med limeklyfta." },
+  { name:"Sex on the Beach", ingredients:["Vodka","Peach Schnapps","Tranbärsjuice","Apelsinjuice"], recipe:[{item:"Vodka",amount:"2 cl"},{item:"Peach Schnapps",amount:"2 cl"},{item:"Tranbärsjuice",amount:"5 cl"},{item:"Apelsinjuice",amount:"5 cl"}], steps:"Fyll glas med is, häll vodka och Peach Schnapps, toppa med tranbärs- och apelsinjuice." },
+  { name:"Cosmopolitan", ingredients:["Vodka","Cointreau","Tranbärsjuice","Limejuice","Limeklyfta"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Tranbärsjuice",amount:"3 cl"},{item:"Limejuice",amount:"1 cl"}], steps:"Skaka alla ingredienser med is, sila upp i kylt cocktailglas. Garnera med limeklyfta." },
+  { name:"Daiquiri", ingredients:["Ljus Rom","Limejuice","Sockerlag"], recipe:[{item:"Rom",amount:"6 cl"},{item:"Limejuice",amount:"3 cl"},{item:"Sockerlag",amount:"2 cl"}], steps:"Skaka alla ingredienser med is, sila upp i kylt cocktailglas." },
   { name:"French Martini", ingredients:["Vodka","Chambord","Ananasjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Chambord",amount:"2 cl"},{item:"Ananasjuice",amount:"4 cl"}], steps:"Skaka ingredienser med is, sila upp i kylt cocktailglas." },
-  { name:"Lynchburg Lemonade", ingredients:["Whisky","Cointreau","Citronjuice","Sockerlag","Sodavatten"], recipe:[{item:"Whisky",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Sockerlag",amount:"1 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Fyll glas med is, häll whisky, Cointreau, citronjuice och sockerlag, toppa med sodavatten." },
-  { name:"Tom Collins", ingredients:["Gin","Citronjuice","Sockerlag","Sodavatten","Citronklyfta"], recipe:[{item:"Gin",amount:"4 cl"},{item:"Citronjuice",amount:"3 cl"},{item:"Sockerlag",amount:"2 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Skaka gin, citronjuice och sockerlag med is, sila i glas med is, toppa med sodavatten, garnera med citronklyfta." },
-  { name:"Long Island Ice Tea", ingredients:["Vodka","Gin","Rom","Tequila","Cointreau","Citronjuice","Cola"], recipe:[{item:"Vodka",amount:"2 cl"},{item:"Gin",amount:"2 cl"},{item:"Rom",amount:"2 cl"},{item:"Tequila",amount:"2 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Fyll glas med is, häll alla spritsorter och citronjuice, toppa med cola." },
-  { name:"Dry Martini", ingredients:["Gin","Vermouth","Oliv"], recipe:[{item:"Gin",amount:"6 cl"},{item:"Vermouth",amount:"1 cl"}], steps:"Rör gin och vermouth med is, sila i kylt martiniglas, garnera med oliv." },
+  { name:"Lynchburg Lemonade", ingredients:["Whisky","Cointreau","Citronjuice","Sockerlag","Sodavatten"], recipe:[{item:"Whisky",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Sockerlag",amount:"1 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Skaka whisky, Cointreau, citronjuice och sockerlag med is, sila i glas med is,, toppa med sodavatten." },
+  { name:"Tom Collins", ingredients:["Gin","Citronjuice","Sockerlag","Sodavatten","Citronklyfta"], recipe:[{item:"Gin",amount:"6 cl"},{item:"Citronjuice",amount:"3 cl"},{item:"Sockerlag",amount:"2 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Skaka gin, citronjuice och sockerlag med is, sila i glas med is, toppa med sodavatten. Garnera med citronklyfta." },
+  { name:"Long Island Ice Tea", ingredients:["Vodka","Gin","Ljus Rom","Tequila","Cointreau","Citronjuice","Sockerlag","Cola"], recipe:[{item:"Vodka",amount:"2 cl"},{item:"Gin",amount:"2 cl"},{item:"Ljus Rom",amount:"2 cl"},{item:"Tequila",amount:"2 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Skaka alla spritsorter, citronjuice, sockerlag, toppa med cola." },
+  { name:"Dry Martini", ingredients:["Gin","Dry Vermouth","Oliv"], recipe:[{item:"Gin",amount:"6 cl"},{item:"Dry Vermouth",amount:"1 cl"}], steps:"Rör gin och dry vermouth med is, sila i kylt martiniglas. Garnera med oliv." },
   { name:"Manhattan", ingredients:["Whisky","Vermouth","Angostura","Körsbär"], recipe:[{item:"Whisky",amount:"5 cl"},{item:"Vermouth",amount:"2 cl"},{item:"Angostura",amount:"1 dash"}], steps:"Rör ingredienser med is, sila upp i kylt glas, garnera med körsbär." },
   { name:"Rob Roy", ingredients:["Scotch","Vermouth","Angostura","Körsbär"], recipe:[{item:"Scotch",amount:"5 cl"},{item:"Vermouth",amount:"2 cl"},{item:"Angostura",amount:"1 dash"}], steps:"Rör ingredienser med is, sila upp i kylt glas, garnera med körsbär." },
   { name:"Batanga", ingredients:["Tequila","Cola","Limejuice"], recipe:[{item:"Tequila",amount:"4 cl"},{item:"Cola",amount:"Toppa upp"},{item:"Limejuice",amount:"1 cl"}], steps:"Fyll glas med is, häll tequila och limejuice, toppa med cola." },
