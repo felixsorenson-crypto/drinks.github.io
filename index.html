@@ -48,6 +48,20 @@
       display: inline-block;
       width: 100%;
     }
+    #surprise {
+      display: block;
+      margin: 1.5rem auto;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    #surprise:hover {
+      background: #005ecb;
+    }
   </style>
 </head>
 <body>
@@ -55,31 +69,33 @@
   <p>Markera vad du har hemma – se vilka drinkar du kan (eller nästan kan) göra!</p>
 
   <div id="ingredients"></div>
+  <button id="surprise">🎲 Surprise Me!</button>
   <h2>Dina möjliga drinkar</h2>
   <div id="results"></div>
 
   <script>
     const categories = {
       "Alkohol": ["Vodka", "Gin", "Rom", "Whisky", "Tequila", "Cointreau"],
-      "Juice / Frukt": ["Limejuice", "Citronjuice", "Apelsinjuice", "Ananasjuice"],
+      "Juice": ["Limejuice", "Citronjuice", "Apelsinjuice", "Ananasjuice"],
+      "Frukt / Garnering": ["Limeklyfta", "Apelsinskiva", "Körsbär", "Mynta"],
       "Sötning": ["Sockerlag", "Grenadin"],
-      "Övrigt": ["Mynta", "Sodavatten", "Tonic"]
+      "Övrigt": ["Sodavatten", "Tonic"]
     };
 
     const drinks = [
       { 
         name: "Margarita", 
-        ingredients: ["Tequila", "Cointreau", "Limejuice"], 
+        ingredients: ["Tequila", "Cointreau", "Limejuice", "Limeklyfta"], 
         recipe: [
           { item: "Tequila", amount: "4 cl" },
           { item: "Cointreau", amount: "2 cl" },
           { item: "Limejuice", amount: "2 cl" }
         ],
-        steps: "Skaka alla ingredienser med is och sila upp i kyld cocktailglas. Garnera med limeklyfta."
+        steps: "Skaka alla ingredienser med is och sila upp i kylt cocktailglas. Garnera med limeklyfta."
       },
       { 
         name: "Mojito", 
-        ingredients: ["Rom", "Limejuice", "Mynta", "Sodavatten", "Sockerlag"], 
+        ingredients: ["Rom", "Limejuice", "Mynta", "Sodavatten", "Sockerlag", "Limeklyfta"], 
         recipe: [
           { item: "Rom", amount: "5 cl" },
           { item: "Limejuice", amount: "3 cl" },
@@ -87,36 +103,36 @@
           { item: "Mynta", amount: "8 blad" },
           { item: "Sodavatten", amount: "Toppa upp" }
         ],
-        steps: "Muddla mynta, sockerlag och limejuice i glaset. Fyll på med rom och sodavatten. Rör om försiktigt."
+        steps: "Muddla mynta, sockerlag och limejuice i glaset. Fyll på med rom och sodavatten. Garnera med limeklyfta."
       },
       { 
         name: "Whisky Sour", 
-        ingredients: ["Whisky", "Citronjuice", "Sockerlag"], 
+        ingredients: ["Whisky", "Citronjuice", "Sockerlag", "Körsbär"], 
         recipe: [
           { item: "Whisky", amount: "5 cl" },
           { item: "Citronjuice", amount: "3 cl" },
           { item: "Sockerlag", amount: "2 cl" }
         ],
-        steps: "Skaka alla ingredienser med is och sila upp i glas med is. Garnera med citronskiva."
+        steps: "Skaka alla ingredienser med is och sila upp i glas med is. Garnera med körsbär."
       },
       { 
         name: "Vodka Tonic", 
-        ingredients: ["Vodka", "Tonic"], 
+        ingredients: ["Vodka", "Tonic", "Limeklyfta"], 
         recipe: [
           { item: "Vodka", amount: "5 cl" },
           { item: "Tonic", amount: "Toppa upp" }
         ],
-        steps: "Fyll glas med is, häll i vodka och toppa med tonic. Rör om lätt."
+        steps: "Fyll glas med is, häll i vodka och toppa med tonic. Garnera med limeklyfta."
       },
       { 
         name: "Tequila Sunrise", 
-        ingredients: ["Tequila", "Apelsinjuice", "Grenadin"], 
+        ingredients: ["Tequila", "Apelsinjuice", "Grenadin", "Apelsinskiva"], 
         recipe: [
           { item: "Tequila", amount: "4 cl" },
           { item: "Apelsinjuice", amount: "10 cl" },
           { item: "Grenadin", amount: "1 cl" }
         ],
-        steps: "Häll tequila och apelsinjuice i glas med is. Tillsätt grenadin försiktigt så den sjunker till botten."
+        steps: "Häll tequila och apelsinjuice i glas med is. Tillsätt grenadin försiktigt så den sjunker till botten. Garnera med apelsinskiva."
       },
       { 
         name: "Gin Fizz", 
@@ -133,6 +149,7 @@
 
     const ingredientsDiv = document.getElementById('ingredients');
     const resultsDiv = document.getElementById('results');
+    const surpriseBtn = document.getElementById('surprise');
 
     // skapa checkboxar
     for (const [cat, items] of Object.entries(categories)) {
@@ -150,11 +167,23 @@
       cb.addEventListener('change', updateResults);
     });
 
+    // Surprise Me fixad
+    surpriseBtn.addEventListener('click', () => {
+      // om inga drinkar finns renderade, rendera alla först
+      if (resultsDiv.children.length === 0) updateResults();
+
+      const allDrinks = Array.from(resultsDiv.children);
+      if (allDrinks.length === 0) return;
+
+      const random = allDrinks[Math.floor(Math.random() * allDrinks.length)];
+      random.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      random.classList.add('open');
+    });
+
     function updateResults() {
       const selected = Array.from(document.querySelectorAll('input:checked')).map(cb => cb.value);
       resultsDiv.innerHTML = '';
 
-      // sortera så att de man kan göra hamnar överst
       const sortedDrinks = [...drinks].sort((a, b) => {
         const missA = a.ingredients.filter(i => !selected.includes(i)).length;
         const missB = b.ingredients.filter(i => !selected.includes(i)).length;
