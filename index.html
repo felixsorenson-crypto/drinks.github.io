@@ -84,7 +84,16 @@ label { display: block; cursor: pointer; }
 <body>
 <h1>🍹 Drinkassistent</h1>
 <p>Markera vad du har hemma – se vilka drinkar du kan (eller nästan kan) göra!</p>
+<h2>⭐ Mina favoriter</h2>
+<div id="favorites"></div>
+
+<h2>Mitt barskåp</h2>
 <div id="ingredients"></div>
+
+<button id="resetIngredients">↻ Återställ barskåp</button>
+
+<h2>Vad är du sugen på?</h2>
+<div id="profiles"></div>
 
 <input
   type="search"
@@ -98,7 +107,7 @@ label { display: block; cursor: pointer; }
 <h2>Dina drinkar</h2>
 <div id="results"></div>
 
-<a class="support" href="mailto:drinkar.cocktails@gmail.com?subject=Support%20-%20Drinkassistent&body=Ny%20drinkide%3A%0A%0AFel%20i%20ett%20recept%3A%0A%0AMvh%2C%0A">
+<a class="support" href="mailto:drinkar.cocktails@gmail.com?subject=Support%20-%20Drinkassistent&body=Ny%20drinkidé%3A%0A%0AFel%20i%20ett%20recept%3A%0A%0AMvh%2C%0A">
   ✉️ Support / Kontakta oss
 </a>
 
@@ -183,222 +192,413 @@ const garnishesByDrink = {
   "Aperol Spritz": ["Apelsinskiva"]
 };
 
-// Hämta sparade favoriter
-let favorites = JSON.parse(
-  localStorage.getItem("drinkFavorites") || "[]"
-);
+// Smakprofiler för drinkarna
+const drinkProfiles = {
+  "Gin & Tonic": ["Fräscht", "Bubbligt"],
+  "Screwdriver": ["Sött"],
+  "Cuba Libre": ["Sött", "Bubbligt"],
+  "Tequila Sunrise": ["Sött"],
+  "Black Russian": ["Starkt"],
+  "White Russian": ["Krämigt"],
+  "Moscow Mule": ["Fräscht", "Bubbligt"],
+  "Seabreeze": ["Surt", "Fräscht"],
+  "Screaming Orgasm": ["Sött", "Krämigt"],
+  "Sex on the Beach": ["Sött", "Fräscht"],
+  "Cosmopolitan": ["Surt", "Fräscht"],
+  "Daiquiri": ["Surt", "Starkt"],
+  "French Martini": ["Sött"],
+  "Lynchburg Lemonade": ["Sött", "Surt", "Fräscht"],
+  "Tom Collins": ["Surt", "Fräscht", "Bubbligt"],
+  "Long Island Ice Tea": ["Starkt", "Surt"],
+  "Dry Martini": ["Starkt"],
+  "Manhattan": ["Starkt"],
+  "Rob Roy": ["Starkt"],
+  "Batanga": ["Sött", "Bubbligt"],
+  "Margarita": ["Surt", "Starkt"],
+  "Sidecar": ["Surt", "Starkt"],
+  "Amaretto Sour": ["Sött", "Surt"],
+  "Whiskey Sour": ["Surt", "Starkt"],
+  "Mojito": ["Sött", "Surt", "Fräscht", "Bubbligt"],
+  "Caipirinha": ["Sött", "Surt", "Starkt"],
+  "B-52": ["Sött", "Starkt"],
+  "Old Fashioned": ["Starkt"],
+  "Dark & Stormy": ["Starkt", "Bubbligt"],
+  "White Lady": ["Surt", "Starkt"],
+  "Negroni": ["Starkt"],
+  "Aperol Spritz": ["Sött", "Bubbligt", "Fräscht"],
+  "Mimosa": ["Sött", "Bubbligt"],
+  "Espresso Martini": ["Sött", "Starkt"],
+  "Kamikaze": ["Surt", "Starkt"],
+  "Irish Coffee": ["Sött", "Krämigt", "Starkt"]
+};
 
-function saveFavorites() {
-  localStorage.setItem(
-    "drinkFavorites",
-    JSON.stringify(favorites)
-  );
-}
+const profiles = [
+  "Sött", "Surt", "Starkt",
+  "Fräscht", "Bubbligt", "Krämigt"
+];
 
-// Sökfält
-const searchInput = document.getElementById("search");
-
-searchInput.addEventListener("input", updateResults);
+// --------------------------------------------------
+// SPARADE INSTÄLLNINGAR
+// --------------------------------------------------
 
 const ingredientsDiv = document.getElementById('ingredients');
 const resultsDiv = document.getElementById('results');
+const favoritesDiv = document.getElementById('favorites');
+const profilesDiv = document.getElementById('profiles');
 const surpriseBtn = document.getElementById('surprise');
+const resetBtn = document.getElementById('resetIngredients');
+const searchInput = document.getElementById('search');
 
-// Skapa två kolumner
+let favorites = JSON.parse(localStorage.getItem('drinkFavorites') || '[]');
+let savedIngredients = JSON.parse(localStorage.getItem('drinkIngredients') || '[]');
+let selectedProfiles = [];
+
+function saveFavorites() {
+  localStorage.setItem('drinkFavorites', JSON.stringify(favorites));
+}
+
+function saveIngredients() {
+  const selected = Array.from(
+    document.querySelectorAll('#ingredients input:checked')
+  ).map(cb => cb.value);
+
+  localStorage.setItem('drinkIngredients', JSON.stringify(selected));
+}
+
+
+// --------------------------------------------------
+// SKAPA BARSKÅPET
+// --------------------------------------------------
+
 const leftColumn = document.createElement('div');
 leftColumn.className = 'left-column';
+
 const rightColumn = document.createElement('div');
 rightColumn.className = 'right-column';
+
 ingredientsDiv.appendChild(leftColumn);
 ingredientsDiv.appendChild(rightColumn);
 
-// Skapa checkboxar och placera rätt kolumn
 for (const [cat, items] of Object.entries(categories)) {
+
   const categoryDiv = document.createElement('div');
   categoryDiv.className = 'category';
+
   const h3 = document.createElement('h3');
   h3.textContent = cat;
   categoryDiv.appendChild(h3);
-  items.forEach(i=>{
-    const id = encodeURIComponent(i);
+
+  items.forEach(item => {
+
     const label = document.createElement('label');
-    label.innerHTML = `<input type="checkbox" value="${i}" id="${id}"> ${i}`;
+    const checkbox = document.createElement('input');
+
+    checkbox.type = 'checkbox';
+    checkbox.value = item;
+    checkbox.id = encodeURIComponent(item);
+
+    checkbox.checked = savedIngredients.includes(item);
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + item));
+
     categoryDiv.appendChild(label);
   });
 
-  // Placera i vänster eller höger kolumn
-  if(cat === "Alkohol" || cat === "Frukt / Garnering") {
+  if (cat === 'Alkohol' || cat === 'Frukt / Garnering') {
     leftColumn.appendChild(categoryDiv);
   } else {
     rightColumn.appendChild(categoryDiv);
   }
 }
 
-// Eventlisteners
-document.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.addEventListener('change', updateResults));
-surpriseBtn.addEventListener('click', () => {
-  document.querySelectorAll('.drink.highlight').forEach(d=>d.classList.remove('highlight','open'));
-  if(resultsDiv.children.length===0) updateResults();
-  const allDrinks = Array.from(resultsDiv.children);
-  if(allDrinks.length===0) return;
-  const random = allDrinks[Math.floor(Math.random()*allDrinks.length)];
-  random.scrollIntoView({behavior:'smooth',block:'center'});
-  random.classList.add('highlight','open');
+
+// --------------------------------------------------
+// SKAPA SMAKPROFILER
+// --------------------------------------------------
+
+profiles.forEach(profile => {
+
+  const label = document.createElement('label');
+  const checkbox = document.createElement('input');
+
+  checkbox.type = 'checkbox';
+  checkbox.value = profile;
+
+  checkbox.addEventListener('change', () => {
+
+    selectedProfiles = Array.from(
+      profilesDiv.querySelectorAll('input:checked')
+    ).map(cb => cb.value);
+
+    updateResults();
+  });
+
+  label.appendChild(checkbox);
+  label.appendChild(document.createTextNode(' ' + profile));
+
+  profilesDiv.appendChild(label);
 });
 
+
+// --------------------------------------------------
+// SKAPA DRINKKORT
+// --------------------------------------------------
+
+function createDrinkCard(drink, selected) {
+
+  const baseIngredients = drink.recipe.map(r => r.item);
+  const garnishes = garnishesByDrink[drink.name] || [];
+
+  const missing = baseIngredients.filter(
+    item => !selected.includes(item)
+  );
+
+  let status = 'missing';
+
+  if (missing.length === 0) {
+    status = 'possible';
+  } else if (baseIngredients.some(item => selected.includes(item))) {
+    status = 'almost';
+  }
+
+  const isFavorite = favorites.includes(drink.name);
+
+  const div = document.createElement('div');
+  div.className = 'drink ' + status;
+
+  const header = document.createElement('div');
+  header.className = 'drink-header';
+
+  const title = document.createElement('strong');
+  title.textContent = drink.name;
+
+  const favoriteBtn = document.createElement('button');
+  favoriteBtn.className = 'favorite-btn';
+  favoriteBtn.textContent = isFavorite ? '★' : '☆';
+
+  if (isFavorite) {
+    favoriteBtn.classList.add('active');
+  }
+
+  favoriteBtn.addEventListener('click', () => {
+
+    if (favorites.includes(drink.name)) {
+      favorites = favorites.filter(name => name !== drink.name);
+    } else {
+      favorites.push(drink.name);
+    }
+
+    saveFavorites();
+    updateResults();
+  });
+
+  header.appendChild(title);
+  header.appendChild(favoriteBtn);
+  div.appendChild(header);
+
+  const details = document.createElement('div');
+  details.className = 'details';
+
+  const recipeItems = drink.recipe.map(r => {
+
+    const isMissing = !selected.includes(r.item);
+
+    return `
+      <li class="${isMissing ? 'missing-ingredient' : ''}">
+        ${r.amount} ${r.item}
+      </li>
+    `;
+  }).join('');
+
+  const garnishItems = garnishes.map(g => `
+    <li style="color:#888">
+      Garnering: ${g} (valfritt)
+    </li>
+  `).join('');
+
+  const missingText = missing.length
+    ? `<p class="missing-ingredient">Saknas: ${missing.join(', ')}</p>`
+    : `<p style="color:green;font-weight:bold">Du har allt som behövs!</p>`;
+
+  const drinkProfileList = drinkProfiles[drink.name] || [];
+
+  const profileText = drinkProfileList.length
+    ? `<p><small>Smakprofil: ${drinkProfileList.join(' · ')}</small></p>`
+    : '';
+
+  details.innerHTML = `
+    ${profileText}
+    <h4>Recept:</h4>
+    ${missingText}
+    <ul>
+      ${recipeItems}
+      ${garnishItems}
+    </ul>
+    <p><em>${drink.steps}</em></p>
+  `;
+
+  div.appendChild(details);
+
+  title.addEventListener('click', () => {
+    div.classList.toggle('open');
+  });
+
+  return div;
+}
+
+
+// --------------------------------------------------
+// UPPDATERA FAVORITER OCH RESULTAT
+// --------------------------------------------------
+
 function updateResults() {
+
   const selected = Array.from(
-    document.querySelectorAll('input[type="checkbox"]:checked')
+    document.querySelectorAll('#ingredients input:checked')
   ).map(cb => cb.value);
 
   const searchTerm = searchInput.value.toLowerCase().trim();
 
-  resultsDiv.innerHTML = "";
+  saveIngredients();
 
-  const drinksWithStatus = drinks
-    .filter(drink => {
-      return (
-        drink.name.toLowerCase().includes(searchTerm) ||
-        drink.ingredients.some(i => i.toLowerCase().includes(searchTerm))
-      );
-    })
-    .map(drink => {
+  // FAVORITER – visas alltid
+  favoritesDiv.innerHTML = '';
 
-      const garnishes = garnishesByDrink[drink.name] || [];
+  const favoriteDrinks = drinks.filter(drink =>
+    favorites.includes(drink.name)
+  );
 
-      // Garnering räknas inte som obligatorisk ingrediens
-      const baseIngredients = drink.ingredients.filter(
-        i => !garnishes.includes(i)
-      );
-
-      const missing = baseIngredients.filter(
-        i => !selected.includes(i)
-      );
-
-      const selectedCount = baseIngredients.length - missing.length;
-
-      let status = "missing";
-
-      if (missing.length === 0) {
-        status = "possible";
-      } else if (selectedCount > 0 && missing.length <= 2) {
-        status = "almost";
-      }
-
-      return {
-        ...drink,
-        garnishes,
-        baseIngredients,
-        missing,
-        status,
-        isFavorite: favorites.includes(drink.name)
-      };
+  if (favoriteDrinks.length === 0) {
+    favoritesDiv.innerHTML =
+      '<p>Du har inga favoriter ännu. Tryck på ☆ vid en drink för att spara den.</p>';
+  } else {
+    favoriteDrinks.forEach(drink => {
+      favoritesDiv.appendChild(createDrinkCard(drink, selected));
     });
+  }
 
-  // Favoriter först, därefter möjliga och nästan möjliga
-  drinksWithStatus.sort((a, b) => {
-    if (a.isFavorite !== b.isFavorite) {
-      return Number(b.isFavorite) - Number(a.isFavorite);
-    }
+  // RESULTAT
+  resultsDiv.innerHTML = '';
 
-    const order = {
-      possible: 0,
-      almost: 1,
-      missing: 2
+  if (selected.length === 0 && searchTerm === '') {
+    resultsDiv.innerHTML =
+      '<p>Välj ingredienser i barskåpet för att se vilka drinkar du kan göra.</p>';
+    return;
+  }
+
+  const matchingDrinks = drinks.filter(drink => {
+
+    const matchesSearch =
+      searchTerm === '' ||
+      drink.name.toLowerCase().includes(searchTerm) ||
+      drink.ingredients.some(i => i.toLowerCase().includes(searchTerm)) ||
+      drink.recipe.some(r => r.item.toLowerCase().includes(searchTerm));
+
+    const drinkProfileList = drinkProfiles[drink.name] || [];
+
+    const matchesProfile =
+      selectedProfiles.length === 0 ||
+      selectedProfiles.some(profile => drinkProfileList.includes(profile));
+
+    return matchesSearch && matchesProfile;
+  });
+
+  const visibleDrinks = matchingDrinks.map(drink => {
+
+    const baseIngredients = drink.recipe.map(r => r.item);
+
+    const selectedCount = baseIngredients.filter(
+      item => selected.includes(item)
+    ).length;
+
+    return {
+      drink,
+      selectedCount,
+      possible: selectedCount === baseIngredients.length
     };
 
-    return order[a.status] - order[b.status];
+  }).filter(item => {
+
+    // Vid sökning visas alla matchningar.
+    // Annars krävs minst en ingrediens i barskåpet.
+    return searchTerm !== '' || item.selectedCount > 0;
+
   });
 
-  drinksWithStatus.forEach(drink => {
+  visibleDrinks.sort((a, b) => {
 
-    const div = document.createElement("div");
-    div.classList.add("drink", drink.status);
-
-    const header = document.createElement("div");
-    header.className = "drink-header";
-
-    const title = document.createElement("strong");
-    title.textContent = drink.name;
-
-    const favoriteBtn = document.createElement("button");
-    favoriteBtn.className = "favorite-btn";
-    favoriteBtn.textContent = drink.isFavorite ? "★" : "☆";
-
-    if (drink.isFavorite) {
-      favoriteBtn.classList.add("active");
+    if (a.possible !== b.possible) {
+      return Number(b.possible) - Number(a.possible);
     }
 
-    favoriteBtn.setAttribute(
-      "aria-label",
-      drink.isFavorite ? "Ta bort favorit" : "Lägg till favorit"
-    );
+    return b.selectedCount - a.selectedCount;
+  });
 
-    favoriteBtn.addEventListener("click", () => {
+  if (visibleDrinks.length === 0) {
+    resultsDiv.innerHTML =
+      '<p>Inga drinkar matchar dina val. Testa fler ingredienser eller en annan sökning.</p>';
+    return;
+  }
 
-      if (favorites.includes(drink.name)) {
-        favorites = favorites.filter(
-          name => name !== drink.name
-        );
-      } else {
-        favorites.push(drink.name);
-      }
-
-      saveFavorites();
-      updateResults();
-    });
-
-    header.appendChild(title);
-    header.appendChild(favoriteBtn);
-
-    div.appendChild(header);
-
-    const details = document.createElement("div");
-    details.className = "details";
-
-    const recipeItems = drink.recipe.map(r => {
-      const missingIngredient = !selected.includes(r.item);
-
-      return `
-        <li class="${missingIngredient ? "missing-ingredient" : ""}">
-          ${r.amount} ${r.item}
-        </li>
-      `;
-    }).join("");
-
-    const garnishItems = drink.garnishes.map(g => `
-      <li style="color:#888">
-        Garnering: ${g} (valfritt)
-      </li>
-    `).join("");
-
-    const missingText = drink.missing.length
-      ? `<p class="missing-ingredient">
-          Saknas: ${drink.missing.join(", ")}
-        </p>`
-      : `<p style="color:green;font-weight:bold">
-          Du har allt som behövs!
-        </p>`;
-
-    details.innerHTML = `
-      <h4>Recept:</h4>
-      ${missingText}
-      <ul>
-        ${recipeItems}
-        ${garnishItems}
-      </ul>
-      <p><em>${drink.steps}</em></p>
-    `;
-
-    div.appendChild(details);
-
-    title.addEventListener("click", () => {
-      div.classList.toggle("open");
-    });
-
-    resultsDiv.appendChild(div);
+  visibleDrinks.forEach(item => {
+    resultsDiv.appendChild(createDrinkCard(item.drink, selected));
   });
 }
+
+
+// --------------------------------------------------
+// KNAPPAR OCH EVENTLISTENERS
+// --------------------------------------------------
+
+document.querySelectorAll('#ingredients input').forEach(cb => {
+  cb.addEventListener('change', updateResults);
+});
+
+searchInput.addEventListener('input', updateResults);
+
+surpriseBtn.addEventListener('click', () => {
+
+  document.querySelectorAll('.drink.highlight').forEach(d => {
+    d.classList.remove('highlight', 'open');
+  });
+
+  const allDrinks = Array.from(resultsDiv.children).filter(
+    d => d.classList.contains('drink')
+  );
+
+  if (allDrinks.length === 0) return;
+
+  const random = allDrinks[
+    Math.floor(Math.random() * allDrinks.length)
+  ];
+
+  random.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  random.classList.add('highlight', 'open');
+});
+
+resetBtn.addEventListener('click', () => {
+
+  document.querySelectorAll('#ingredients input').forEach(cb => {
+    cb.checked = false;
+  });
+
+  savedIngredients = [];
+  localStorage.removeItem('drinkIngredients');
+
+  updateResults();
+});
+
+
+// --------------------------------------------------
+// STARTA APPEN
+// --------------------------------------------------
+
+updateResults();
 </script>
 </body>
 </html>
