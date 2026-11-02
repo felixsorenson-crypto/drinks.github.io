@@ -70,11 +70,34 @@ details.section[open] > summary::after {
   border:1px solid #eee;
   border-radius:9px;
   padding:.6rem;
+  min-width:0;
 }
 
 .category summary {
   cursor:pointer;
   font-weight:650;
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.3rem;
+  white-space:nowrap;
+  font-size:.9rem;
+}
+
+.category summary::-webkit-details-marker {
+  display:none;
+}
+
+.category summary::after {
+  content:"＋";
+  color:#777;
+  flex-shrink:0;
+  font-size:.9rem;
+}
+
+.category[open] summary::after {
+  content:"−";
 }
 
 .category label {
@@ -144,6 +167,14 @@ details.section[open] > summary::after {
 .action-btn.selected {
   background:#e7f2ff;
   border-color:#3983d6;
+}
+
+.action-btn:disabled {
+  background:#e9e9e9;
+  color:#888;
+  border-color:#ddd;
+  cursor:default;
+  opacity:1;
 }
 
 .mode-switch {
@@ -291,6 +322,8 @@ details.section[open] > summary::after {
 @media(max-width:600px) {
   body { padding:.8rem; }
   #ingredients { gap:.7rem; }
+  .category { padding:.5rem; }
+  .category summary { font-size:.85rem; }
   .shopping-row .qty { max-width:42%; }
 }
 </style>
@@ -301,21 +334,15 @@ details.section[open] > summary::after {
 <h1>🍹 Drinkassistent</h1>
 <p>Markera vad du har hemma – eller hitta drinkar att handla ingredienser till.</p>
 
-<!-- FAVORITER -->
-
 <details class="section" id="favoritesSection" open>
   <summary>⭐ Mina favoriter</summary>
   <div id="favorites"></div>
 </details>
 
-<!-- INKÖPSLISTA -->
-
 <details class="section" id="shoppingSection" open>
   <summary>🛒 Min inköpslista</summary>
   <div id="shoppingPanel" class="shopping-panel"></div>
 </details>
-
-<!-- BARSKÅP -->
 
 <details class="section" id="barSection">
   <summary>🥃 Mitt barskåp</summary>
@@ -325,8 +352,6 @@ details.section[open] > summary::after {
   </button>
 </details>
 
-<!-- SMAKPROFILER -->
-
 <h2>Vad är jag sugen på?</h2>
 <p class="muted">
   Välj en eller flera smakprofiler. Du behöver inte ha några ingredienser ibockade.
@@ -335,8 +360,8 @@ details.section[open] > summary::after {
 <div id="profiles"></div>
 
 <div class="mode-switch">
-  <button id="makeMode" class="active">🏠 Vad kan jag göra?</button>
-  <button id="shopMode">🛒 Vad ska jag köpa?</button>
+  <button id="makeMode" class="active">🍸 Utgå från barskåpet</button>
+  <button id="shopMode">🛒 Hitta drinkar att handla till</button>
 </div>
 
 <input type="search" id="search"
@@ -501,7 +526,6 @@ let selectedProfiles=[];
 let mode="make";
 let shoppingDrinks=JSON.parse(localStorage.getItem("drinkShoppingDrinks")||"[]");
 
-// Inköpta ingredienser och ingredienser som automatiskt lades i barskåpet.
 let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")||"[]");
 let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
 
@@ -642,16 +666,22 @@ function getShoppingItems(chosen){
       needed.get(item).drinks.push(d.name);
     });
 
-    // Garneringar läggs också till, men markeras som valfria.
     (garnishesByDrink[d.name]||[]).forEach(item=>{
       if(!needed.has(item)){
         needed.set(item,{optional:true,drinks:[]});
       }
 
-      needed.get(item).optional=true;
-
       if(!needed.get(item).drinks.includes(d.name)){
         needed.get(item).drinks.push(d.name);
+      }
+    });
+  });
+
+  // En ingrediens är bara valfri om den inte behövs i något recept.
+  chosen.forEach(d=>{
+    d.recipe.forEach(([item])=>{
+      if(needed.has(item)){
+        needed.get(item).optional=false;
       }
     });
   });
@@ -667,8 +697,6 @@ function renderShoppingList(){
 
   const allItems=[...needed.keys()].sort((a,b)=>a.localeCompare(b,"sv"));
 
-  // Varor som redan finns i barskåpet visas inte bland det som ska handlas.
-  // Men inköpta varor visas alltid i den färdiga delen.
   const activeItems=allItems.filter(item=>
     !selected.includes(item)&&!purchasedShopping.includes(item)
   );
@@ -760,15 +788,15 @@ function renderShoppingList(){
             purchasedShopping.push(item);
           }
 
-          // Lägg till i barskåpet om den inte redan finns där.
           if(!selectedIngredients().includes(item)){
-            autoAddedShopping.push(item);
+            if(!autoAddedShopping.includes(item)){
+              autoAddedShopping.push(item);
+            }
             setBarIngredient(item,true);
           }
         }else{
           purchasedShopping=purchasedShopping.filter(x=>x!==item);
 
-          // Ta bara bort från barskåpet om inköpslistan lade till den.
           if(autoAddedShopping.includes(item)){
             autoAddedShopping=autoAddedShopping.filter(x=>x!==item);
             setBarIngredient(item,false);
@@ -818,6 +846,7 @@ function createDrinkCard(drink,selected){
 
   const isFavorite=favorites.includes(drink.name);
   const inShopping=shoppingDrinks.includes(drink.name);
+  const hasEverything=missing.length===0;
 
   const card=document.createElement("div");
   card.className="drink "+status;
@@ -884,23 +913,29 @@ function createDrinkCard(drink,selected){
     <p><em>${esc(drink.steps)}</em></p>
 
     <div class="drink-actions">
-      <button class="action-btn ${inShopping?"selected":""}"
-        data-shopping>
+      <button
+        class="action-btn ${inShopping?"selected":""}"
+        data-shopping
+        ${hasEverything&&!inShopping?"disabled":""}>
         ${inShopping
           ?"✓ Tillagd i inköpslistan"
-          :"🛒 + Inköpslista"}
+          :(hasEverything
+            ?"✓ Har allt"
+            :"🛒 + Inköpslista")}
       </button>
     </div>
   `;
 
-  details.querySelector("[data-shopping]")
-    .addEventListener("click",()=>{
-      inShopping
-        ?removeDrinkFromShopping(drink.name)
-        :addDrinkToShopping(drink.name);
-    });
+  const shoppingButton=details.querySelector("[data-shopping]");
 
-  // Endast klick på drinknamnet öppnar eller stänger receptet.
+  shoppingButton.addEventListener("click",()=>{
+    if(inShopping){
+      removeDrinkFromShopping(drink.name);
+    }else if(!hasEverything){
+      addDrinkToShopping(drink.name);
+    }
+  });
+
   title.addEventListener("click",()=>{
     openDrinkName=openDrinkName===drink.name?null:drink.name;
     updateResults();
@@ -1028,7 +1063,6 @@ document.getElementById("resetIngredients")
     savedIngredients=[];
     localStorage.removeItem("drinkIngredients");
 
-    // Inköpshistoriken behålls även om barskåpet återställs.
     updateResults();
   });
 
