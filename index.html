@@ -8,7 +8,6 @@
 
 <style>
 * { box-sizing:border-box; }
-
 html { scroll-behavior:auto; }
 
 body {
@@ -41,16 +40,14 @@ details.section > summary {
 }
 
 details.section > summary::-webkit-details-marker { display:none; }
-
 details.section > summary::after {
   content:"＋";
   float:right;
   color:#777;
 }
-
 details.section[open] > summary::after { content:"−"; }
 
-/* BARSKÅP – EN KOLUMN */
+/* BARSKÅP */
 
 #ingredients {
   display:grid;
@@ -78,13 +75,11 @@ details.section[open] > summary::after { content:"−"; }
 }
 
 .category summary::-webkit-details-marker { display:none; }
-
 .category summary::after {
   content:"＋";
   color:#777;
   flex-shrink:0;
 }
-
 .category[open] summary::after { content:"−"; }
 
 .category label {
@@ -307,13 +302,11 @@ details.section[open] > summary::after { content:"−"; }
 }
 
 .shopping-recipe summary::-webkit-details-marker { display:none; }
-
 .shopping-recipe summary::after {
   content:"＋";
   color:#777;
   flex-shrink:0;
 }
-
 .shopping-recipe[open] summary::after { content:"−"; }
 
 .shopping-recipe-content {
@@ -360,7 +353,6 @@ details.section[open] > summary::after { content:"−"; }
   <div id="favorites"></div>
 </details>
 
-<!-- BARSKÅPET LIGGER NU FÖRE INKÖPSLISTAN -->
 <details class="section" id="barSection">
   <summary>🥃 Mitt barskåp</summary>
   <div id="ingredients"></div>
@@ -405,9 +397,8 @@ href="mailto:drinkar.cocktails@gmail.com?subject=Support">
 const categories = {
 "Alkohol":[
 "Vodka","Gin","Tequila","Ljus Rom","Mörk Rom","Whisky",
-"Cognac","Cachaca",
-"Cointreau","Amaretto","Kahlua","Campari","Aperol",
-"Peach Schnapps","Baileys","Chambord",
+"Cognac","Cachaca","Cointreau","Amaretto","Kahlua","Campari",
+"Aperol","Peach Schnapps","Baileys","Chambord",
 "Dry Vermouth","Sweet Vermouth","Mousserande Vin"
 ],
 "Juice":[
@@ -418,9 +409,7 @@ const categories = {
 "Limeklyfta","Citronklyfta","Apelsinskiva",
 "Mynta","Körsbär","Oliv"
 ],
-"Sötning":[
-"Sockerlag","Grenadin","Farinsocker"
-],
+"Sötning":["Sockerlag","Grenadin","Farinsocker"],
 "Mixer & övrigt":[
 "Sodavatten","Tonic","Cola","Ginger Beer",
 "Kaffe","Espresso","Mjölk","Grädde",
@@ -534,42 +523,14 @@ const profileOptions = [
 ];
 
 const drinkOrder = [
-"Gin & Tonic",
-"Mojito",
-"Moscow Mule",
-"Cuba Libre",
-"Dark & Stormy",
-"Tom Collins",
-"Screwdriver",
-"Seabreeze",
-"Sex on the Beach",
-"Tequila Sunrise",
-"Aperol Spritz",
-"Mimosa",
-"Daiquiri",
-"Margarita",
-"Cosmopolitan",
-"Kamikaze",
-"White Lady",
-"Whiskey Sour",
-"Amaretto Sour",
-"Sidecar",
-"Lynchburg Lemonade",
-"French Martini",
-"Dry Martini",
-"Manhattan",
-"Rob Roy",
-"Negroni",
-"Old Fashioned",
-"Long Island Iced Tea",
-"Batanga",
-"Caipirinha",
-"Black Russian",
-"White Russian",
-"Screaming Orgasm",
-"B-52",
-"Espresso Martini",
-"Irish Coffee"
+"Gin & Tonic","Mojito","Moscow Mule","Cuba Libre","Dark & Stormy",
+"Tom Collins","Screwdriver","Seabreeze","Sex on the Beach",
+"Tequila Sunrise","Aperol Spritz","Mimosa","Daiquiri","Margarita",
+"Cosmopolitan","Kamikaze","White Lady","Whiskey Sour","Amaretto Sour",
+"Sidecar","Lynchburg Lemonade","French Martini","Dry Martini",
+"Manhattan","Rob Roy","Negroni","Old Fashioned",
+"Long Island Iced Tea","Batanga","Caipirinha","Black Russian",
+"White Russian","Screaming Orgasm","B-52","Espresso Martini","Irish Coffee"
 ];
 
 const drinkOrderIndex = new Map(
@@ -595,6 +556,8 @@ let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")|
 
 let openDrinkName=null;
 let openShoppingRecipes=new Set();
+
+/* GEMENSAMMA HJÄLPFUNKTIONER */
 
 function selectedIngredients(){
   return Array.from(
@@ -624,7 +587,24 @@ function esc(s){
   }[c]));
 }
 
-// BARSKÅP
+/*
+  Försöker behålla fokus på motsvarande kontroll efter
+  att en del av sidan har byggts om.
+*/
+function restoreFocusAndScroll(scrollY,selector){
+  requestAnimationFrame(()=>{
+    if(selector){
+      const target=document.querySelector(selector);
+      if(target){
+        target.focus({preventScroll:true});
+      }
+    }
+
+    window.scrollTo(0,scrollY);
+  });
+}
+
+/* BARSKÅP */
 
 Object.entries(categories).forEach(([cat,items])=>{
   const category=document.createElement("details");
@@ -644,8 +624,10 @@ Object.entries(categories).forEach(([cat,items])=>{
     cb.checked=savedIngredients.includes(item);
 
     cb.addEventListener("change",()=>{
+      const scrollY=window.scrollY;
       saveIngredients();
       updateResults();
+      restoreFocusAndScroll(scrollY,null);
     });
 
     label.append(cb,document.createTextNode(" "+item));
@@ -655,7 +637,7 @@ Object.entries(categories).forEach(([cat,items])=>{
   ingredientsDiv.appendChild(category);
 });
 
-// SMAKPROFILER
+/* SMAKPROFILER */
 
 profileOptions.forEach(p=>{
   const btn=document.createElement("button");
@@ -668,18 +650,21 @@ profileOptions.forEach(p=>{
   `;
 
   btn.addEventListener("click",()=>{
+    const scrollY=window.scrollY;
+
     selectedProfiles=selectedProfiles.includes(p.name)
       ?selectedProfiles.filter(x=>x!==p.name)
       :[...selectedProfiles,p.name];
 
     btn.classList.toggle("active",selectedProfiles.includes(p.name));
     updateResults();
+    restoreFocusAndScroll(scrollY,null);
   });
 
   profilesDiv.appendChild(btn);
 });
 
-// HJÄLPFUNKTIONER FÖR BARSKÅPET
+/* BARSKÅP – HJÄLPFUNKTION */
 
 function setBarIngredient(item,checked){
   const checkbox=Array.from(
@@ -693,7 +678,7 @@ function setBarIngredient(item,checked){
   saveIngredients();
 }
 
-// FAVORITER – UPPDATERA UTAN ATT BYGGA OM DRINKRESULTATEN
+/* FAVORITER */
 
 function renderFavorites(){
   favoritesDiv.innerHTML="";
@@ -725,10 +710,8 @@ function renderFavorites(){
 }
 
 function toggleFavorite(drinkName){
-  const isFavorite=favorites.includes(drinkName);
+  const scrollY=window.scrollY;
 
-  // Använd ett kort i resultatlistan som stabil referens.
-  // Det kortet byggs inte om när favoriterna ändras.
   const anchor=Array.from(resultsDiv.querySelectorAll(".drink"))
     .find(card=>card.dataset.drink===drinkName)
     ||resultsDiv.querySelector(".drink")
@@ -736,38 +719,38 @@ function toggleFavorite(drinkName){
 
   const oldTop=anchor?.getBoundingClientRect().top ?? null;
 
+  const isFavorite=favorites.includes(drinkName);
+
   favorites=isFavorite
     ?favorites.filter(n=>n!==drinkName)
     :[...favorites,drinkName];
 
   saveFavorites();
-
-  // Bygg bara om favoritsektionen.
   renderFavorites();
 
-  // Uppdatera stjärnorna i befintliga kort utan att ersätta dem.
   document.querySelectorAll(".favorite-btn").forEach(btn=>{
     const card=btn.closest(".drink");
     const name=card?.dataset.drink;
-
     if(!name)return;
 
     const active=favorites.includes(name);
     btn.classList.toggle("active",active);
     btn.textContent=active?"★":"☆";
     btn.title=active?"Ta bort favorit":"Spara favorit";
+    btn.setAttribute("aria-label",btn.title);
   });
 
-  // Kompensera för att favoritsektionen ändrat höjd.
   requestAnimationFrame(()=>{
     if(anchor && oldTop!==null){
       const newTop=anchor.getBoundingClientRect().top;
       window.scrollBy(0,newTop-oldTop);
+    }else{
+      window.scrollTo(0,scrollY);
     }
   });
 }
 
-// INKÖPSLISTA
+/* INKÖPSLISTA */
 
 function addDrinkToShopping(name){
   if(!shoppingDrinks.includes(name)){
@@ -819,6 +802,7 @@ function getShoppingItems(chosen){
 }
 
 function renderShoppingList(){
+  // Spara öppna recept innan panelen uppdateras.
   shoppingPanel.querySelectorAll(".shopping-recipe").forEach(el=>{
     if(el.open){
       openShoppingRecipes.add(el.dataset.drink);
@@ -827,8 +811,13 @@ function renderShoppingList(){
     }
   });
 
-  const selected=selectedIngredients();
+  // Spara fokus och scrollposition om användaren ändrar en vara.
+  const active=document.activeElement;
+  const activeItem=active?.dataset?.shopItem;
+  const wasShoppingCheckbox=active?.matches?.("[data-shop-item]");
+  const scrollY=window.scrollY;
 
+  const selected=selectedIngredients();
   const chosen=drinks.filter(d=>shoppingDrinks.includes(d.name));
   const needed=getShoppingItems(chosen);
 
@@ -849,6 +838,8 @@ function renderShoppingList(){
         så samlar vi ingredienserna här.
       </p>
     `;
+
+    restoreFocusAndScroll(scrollY,null);
     return;
   }
 
@@ -896,7 +887,7 @@ function renderShoppingList(){
           </span>
           <span class="qty">${info.drinks.map(esc).join(", ")}</span>
         </label>
-      `;
+    `;
     }).join(""):`
       <p class="muted">Inget kvar att handla just nu. 🎉</p>
     `}
@@ -939,6 +930,7 @@ function renderShoppingList(){
     ${recipesHtml}
   `;
 
+  // Receptens öppna/stängda läge hanteras separat.
   shoppingPanel.querySelectorAll(".shopping-recipe")
     .forEach(el=>{
       el.addEventListener("toggle",()=>{
@@ -950,6 +942,7 @@ function renderShoppingList(){
       });
     });
 
+  // Hantera inköpsrutorna.
   shoppingPanel.querySelectorAll("[data-shop-item]")
     .forEach(cb=>{
       cb.addEventListener("change",()=>{
@@ -1005,9 +998,19 @@ function renderShoppingList(){
       saveShopping();
       updateResults();
     });
+
+  // Återskapa fokus på samma inköpsvara efter uppdateringen.
+  if(wasShoppingCheckbox && activeItem){
+    restoreFocusAndScroll(
+      scrollY,
+      `[data-shop-item="${CSS.escape(activeItem)}"]`
+    );
+  }else{
+    restoreFocusAndScroll(scrollY,null);
+  }
 }
 
-// DRINKKORT
+/* DRINKKORT */
 
 function createDrinkCard(drink,selected){
   const base=drink.recipe.map(r=>r[0]);
@@ -1042,7 +1045,6 @@ function createDrinkCard(drink,selected){
   fav.title=isFavorite?"Ta bort favorit":"Spara favorit";
   fav.setAttribute("aria-label",fav.title);
 
-  // Favoritändring bygger inte längre om resultatlistan.
   fav.addEventListener("click",()=>{
     toggleFavorite(drink.name);
   });
@@ -1087,7 +1089,7 @@ function createDrinkCard(drink,selected){
     <div class="drink-actions">
       <button
         class="action-btn ${inShopping?"selected":""}"
-        data-shopping
+        data-shopping-button="${esc(drink.name)}"
         ${hasEverything&&!inShopping?"disabled":""}>
         ${inShopping
           ?"✓ Tillagd i inköpslistan"
@@ -1098,7 +1100,7 @@ function createDrinkCard(drink,selected){
     </div>
   `;
 
-  const shoppingButton=details.querySelector("[data-shopping]");
+  const shoppingButton=details.querySelector("[data-shopping-button]");
 
   shoppingButton.addEventListener("click",()=>{
     if(inShopping){
@@ -1117,18 +1119,22 @@ function createDrinkCard(drink,selected){
   return card;
 }
 
-// UPPDATERA RESULTAT
+/* UPPDATERA RESULTAT */
 
 function updateResults(){
+  const scrollY=window.scrollY;
+
+  // Om användaren klickade på en inköpsknapp kan vi fokusera
+  // motsvarande knapp efter att resultatkorten har byggts om.
+  const active=document.activeElement;
+  const activeShoppingDrink=active?.dataset?.shoppingButton;
+  const restoreShoppingButton=active?.matches?.("[data-shopping-button]");
+
   const selected=selectedIngredients();
   const term=searchInput.value.toLowerCase().trim();
 
   saveIngredients();
-
-  // FAVORITER
   renderFavorites();
-
-  // DRINKFILTER
 
   const filtered=drinks.filter(d=>{
     const matchesSearch=
@@ -1188,30 +1194,49 @@ function updateResults(){
       :"🍹 Drinkförslag";
 
   renderShoppingList();
+
+  // Återställ fokus och position efter att resultat och inköpslista uppdaterats.
+  requestAnimationFrame(()=>{
+    if(restoreShoppingButton && activeShoppingDrink){
+      const selector=
+        `[data-shopping-button="${CSS.escape(activeShoppingDrink)}"]`;
+      const target=document.querySelector(selector);
+
+      if(target){
+        target.focus({preventScroll:true});
+      }
+    }
+
+    window.scrollTo(0,scrollY);
+  });
 }
 
-// LÄGESVÄLJARE
+/* LÄGESVÄLJARE */
 
 function setMode(next){
+  const scrollY=window.scrollY;
   mode=next;
 
   makeModeBtn.classList.toggle("active",mode==="make");
   shopModeBtn.classList.toggle("active",mode==="shop");
 
   updateResults();
+  restoreFocusAndScroll(scrollY,null);
 }
 
 makeModeBtn.addEventListener("click",()=>setMode("make"));
 shopModeBtn.addEventListener("click",()=>setMode("shop"));
 
-// SÖKNING
+/* SÖKNING */
 
 searchInput.addEventListener("input",updateResults);
 
-// ÅTERSTÄLL BARSKÅP
+/* ÅTERSTÄLL BARSKÅP */
 
 document.getElementById("resetIngredients")
   .addEventListener("click",()=>{
+    const scrollY=window.scrollY;
+
     document.querySelectorAll("#ingredients input")
       .forEach(cb=>cb.checked=false);
 
@@ -1219,9 +1244,10 @@ document.getElementById("resetIngredients")
     localStorage.removeItem("drinkIngredients");
 
     updateResults();
+    restoreFocusAndScroll(scrollY,null);
   });
 
-// SURPRISE ME
+/* SURPRISE ME */
 
 document.getElementById("surprise")
   .addEventListener("click",()=>{
@@ -1248,7 +1274,7 @@ document.getElementById("surprise")
     }
   });
 
-// STARTA APPEN
+/* STARTA APPEN */
 
 updateResults();
 
