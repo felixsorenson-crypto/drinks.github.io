@@ -522,7 +522,9 @@ function updateResults() {
 
     // Vid sökning visas alla matchningar.
     // Annars krävs minst en ingrediens i barskåpet.
-    return searchTerm !== '' || item.selectedCount > 0;
+    return searchTerm !== '' ||
+       selected.length === 0 ||
+       item.selectedCount > 0;
 
   });
 
