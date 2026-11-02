@@ -35,15 +35,72 @@ label { display: block; cursor: pointer; }
 #surprise:hover { background: #005ecb; }
 .highlight { border: 2px solid #ff9800; box-shadow: 0 0 10px #ff9800; }
 .missing-ingredient { color: #ff3b3b; font-weight: bold; }
+#search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.drink-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drink-header strong {
+  flex: 1;
+}
+
+.favorite-btn {
+  border: none;
+  background: none;
+  font-size: 25px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.favorite-btn.active {
+  color: #ffb300;
+}
+
+.support {
+  display: block;
+  text-align: center;
+  margin: 35px auto 15px;
+  padding: 12px;
+  background: #eee;
+  color: #333;
+  border-radius: 10px;
+  text-decoration: none;
+  max-width: 300px;
+}
 </style>
 </head>
 <body>
 <h1>🍹 Drinkassistent</h1>
 <p>Markera vad du har hemma – se vilka drinkar du kan (eller nästan kan) göra!</p>
 <div id="ingredients"></div>
+
+<input
+  type="search"
+  id="search"
+  placeholder="🔎 Sök efter drink..."
+  autocomplete="off"
+/>
+
 <button id="surprise">🎲 Surprise Me!</button>
-<h2>Dina möjliga drinkar</h2>
+
+<h2>Dina drinkar</h2>
 <div id="results"></div>
+
+<a class="support" href="mailto:drinkar.cocktails@gmail.com?subject=Support%20-%20Drinkassistent&body=Ny%20drinkide%3A%0A%0AFel%20i%20ett%20recept%3A%0A%0AMvh%2C%0A">
+  ✉️ Support / Kontakta oss
+</a>
 
 <script>
 const categories = {
@@ -105,6 +162,43 @@ const drinks = [
   { name:"Irish Coffee", ingredients:["Whisky","Kaffe","Farinsocker","Grädde"], recipe:[{item:"Whisky",amount:"4 cl"},{item:"Kaffe",amount:"Toppa upp"},{item:"Farinsocker",amount:"1 barsked"},{item:"Grädde",amount:"Toppa upp"}], steps:"Fyll glas med kaffe, farinsocker och rör ner whisky. Toppa med lättvispad grädde." },
 
 ];
+// Garnering som inte krävs för att göra drinken
+const garnishesByDrink = {
+  "Gin & Tonic": ["Limeklyfta"],
+  "Cuba Libre": ["Limeklyfta"],
+  "Tequila Sunrise": ["Apelsinskiva"],
+  "Moscow Mule": ["Limeklyfta"],
+  "Cosmopolitan": ["Limeklyfta"],
+  "Lynchburg Lemonade": ["Citronklyfta"],
+  "Tom Collins": ["Citronklyfta"],
+  "Long Island Ice Tea": ["Citronklyfta"],
+  "Dry Martini": ["Oliv"],
+  "Manhattan": ["Körsbär"],
+  "Rob Roy": ["Körsbär"],
+  "Amaretto Sour": ["Körsbär"],
+  "Whiskey Sour": ["Körsbär"],
+  "Old Fashioned": ["Apelsinskiva", "Körsbär"],
+  "Dark & Stormy": ["Limeklyfta"],
+  "Negroni": ["Apelsinskiva"],
+  "Aperol Spritz": ["Apelsinskiva"]
+};
+
+// Hämta sparade favoriter
+let favorites = JSON.parse(
+  localStorage.getItem("drinkFavorites") || "[]"
+);
+
+function saveFavorites() {
+  localStorage.setItem(
+    "drinkFavorites",
+    JSON.stringify(favorites)
+  );
+}
+
+// Sökfält
+const searchInput = document.getElementById("search");
+
+searchInput.addEventListener("input", updateResults);
 
 const ingredientsDiv = document.getElementById('ingredients');
 const resultsDiv = document.getElementById('results');
@@ -153,35 +247,155 @@ surpriseBtn.addEventListener('click', () => {
 });
 
 function updateResults() {
-  const selected = Array.from(document.querySelectorAll('input:checked')).map(cb=>cb.value);
-  resultsDiv.innerHTML = '';
+  const selected = Array.from(
+    document.querySelectorAll('input[type="checkbox"]:checked')
+  ).map(cb => cb.value);
 
-  const drinksWithStatus = drinks.map(drink => {
-    const missing = drink.ingredients.filter(i=>!selected.includes(i));
-    const selectedCount = drink.ingredients.length - missing.length;
-    let status = 'missing';
-    if(missing.length === 0) status = 'possible';
-    else if(selectedCount > 0 && missing.length <= 2) status = 'almost';
-    return { ...drink, status };
+  const searchTerm = searchInput.value.toLowerCase().trim();
+
+  resultsDiv.innerHTML = "";
+
+  const drinksWithStatus = drinks
+    .filter(drink => {
+      return (
+        drink.name.toLowerCase().includes(searchTerm) ||
+        drink.ingredients.some(i => i.toLowerCase().includes(searchTerm))
+      );
+    })
+    .map(drink => {
+
+      const garnishes = garnishesByDrink[drink.name] || [];
+
+      // Garnering räknas inte som obligatorisk ingrediens
+      const baseIngredients = drink.ingredients.filter(
+        i => !garnishes.includes(i)
+      );
+
+      const missing = baseIngredients.filter(
+        i => !selected.includes(i)
+      );
+
+      const selectedCount = baseIngredients.length - missing.length;
+
+      let status = "missing";
+
+      if (missing.length === 0) {
+        status = "possible";
+      } else if (selectedCount > 0 && missing.length <= 2) {
+        status = "almost";
+      }
+
+      return {
+        ...drink,
+        garnishes,
+        baseIngredients,
+        missing,
+        status,
+        isFavorite: favorites.includes(drink.name)
+      };
+    });
+
+  // Favoriter först, därefter möjliga och nästan möjliga
+  drinksWithStatus.sort((a, b) => {
+    if (a.isFavorite !== b.isFavorite) {
+      return Number(b.isFavorite) - Number(a.isFavorite);
+    }
+
+    const order = {
+      possible: 0,
+      almost: 1,
+      missing: 2
+    };
+
+    return order[a.status] - order[b.status];
   });
 
-  drinksWithStatus.sort((a,b)=>{
-    const order = { possible:0, almost:1, missing:2 };
-    return order[a.status]-order[b.status];
-  });
+  drinksWithStatus.forEach(drink => {
 
-  drinksWithStatus.forEach(drink=>{
-    const div = document.createElement('div');
-    div.classList.add('drink', drink.status);
-    div.innerHTML=`<strong>${drink.name}</strong>`;
+    const div = document.createElement("div");
+    div.classList.add("drink", drink.status);
 
-    const details = document.createElement('div');
-    details.className='details';
-    const baseItems = drink.recipe.map(r=>r.item);
-    const garnishes = drink.ingredients.filter(i=>!baseItems.includes(i));
-    details.innerHTML=`<h4>Recept:</h4><ul>${drink.recipe.map(r=>`<li class="${!selected.includes(r.item)?'missing-ingredient':''}">${r.amount} ${r.item}</li>`).join('')}${garnishes.map(g=>`<li class="${!selected.includes(g)?'missing-ingredient':''}">Garnera med ${g}</li>`).join('')}</ul><p><em>${drink.steps}</em></p>`;
+    const header = document.createElement("div");
+    header.className = "drink-header";
+
+    const title = document.createElement("strong");
+    title.textContent = drink.name;
+
+    const favoriteBtn = document.createElement("button");
+    favoriteBtn.className = "favorite-btn";
+    favoriteBtn.textContent = drink.isFavorite ? "★" : "☆";
+
+    if (drink.isFavorite) {
+      favoriteBtn.classList.add("active");
+    }
+
+    favoriteBtn.setAttribute(
+      "aria-label",
+      drink.isFavorite ? "Ta bort favorit" : "Lägg till favorit"
+    );
+
+    favoriteBtn.addEventListener("click", () => {
+
+      if (favorites.includes(drink.name)) {
+        favorites = favorites.filter(
+          name => name !== drink.name
+        );
+      } else {
+        favorites.push(drink.name);
+      }
+
+      saveFavorites();
+      updateResults();
+    });
+
+    header.appendChild(title);
+    header.appendChild(favoriteBtn);
+
+    div.appendChild(header);
+
+    const details = document.createElement("div");
+    details.className = "details";
+
+    const recipeItems = drink.recipe.map(r => {
+      const missingIngredient = !selected.includes(r.item);
+
+      return `
+        <li class="${missingIngredient ? "missing-ingredient" : ""}">
+          ${r.amount} ${r.item}
+        </li>
+      `;
+    }).join("");
+
+    const garnishItems = drink.garnishes.map(g => `
+      <li style="color:#888">
+        Garnering: ${g} (valfritt)
+      </li>
+    `).join("");
+
+    const missingText = drink.missing.length
+      ? `<p class="missing-ingredient">
+          Saknas: ${drink.missing.join(", ")}
+        </p>`
+      : `<p style="color:green;font-weight:bold">
+          Du har allt som behövs!
+        </p>`;
+
+    details.innerHTML = `
+      <h4>Recept:</h4>
+      ${missingText}
+      <ul>
+        ${recipeItems}
+        ${garnishItems}
+      </ul>
+      <p><em>${drink.steps}</em></p>
+    `;
+
     div.appendChild(details);
-    div.querySelector('strong').addEventListener('click',()=>{div.classList.toggle('open')});
+
+    title.addEventListener("click", () => {
+      div.classList.toggle("open");
+    });
+
     resultsDiv.appendChild(div);
   });
 }
