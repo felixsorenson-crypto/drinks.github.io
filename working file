@@ -35,15 +35,81 @@ label { display: block; cursor: pointer; }
 #surprise:hover { background: #005ecb; }
 .highlight { border: 2px solid #ff9800; box-shadow: 0 0 10px #ff9800; }
 .missing-ingredient { color: #ff3b3b; font-weight: bold; }
+#search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.drink-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drink-header strong {
+  flex: 1;
+}
+
+.favorite-btn {
+  border: none;
+  background: none;
+  font-size: 25px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.favorite-btn.active {
+  color: #ffb300;
+}
+
+.support {
+  display: block;
+  text-align: center;
+  margin: 35px auto 15px;
+  padding: 12px;
+  background: #eee;
+  color: #333;
+  border-radius: 10px;
+  text-decoration: none;
+  max-width: 300px;
+}
 </style>
 </head>
 <body>
 <h1>🍹 Drinkassistent</h1>
 <p>Markera vad du har hemma – se vilka drinkar du kan (eller nästan kan) göra!</p>
+<h2>⭐ Mina favoriter</h2>
+<div id="favorites"></div>
+
+<h2>Mitt barskåp</h2>
 <div id="ingredients"></div>
+
+<button id="resetIngredients">↻ Återställ barskåp</button>
+
+<h2>Vad är du sugen på?</h2>
+<div id="profiles"></div>
+
+<input
+  type="search"
+  id="search"
+  placeholder="🔎 Sök efter drink..."
+  autocomplete="off"
+/>
+
 <button id="surprise">🎲 Surprise Me!</button>
-<h2>Dina möjliga drinkar</h2>
+
+<h2>Dina drinkar</h2>
 <div id="results"></div>
+
+<a class="support" href="mailto:drinkar.cocktails@gmail.com?subject=Support%20-%20Drinkassistent&body=Ny%20drinkidé%3A%0A%0AFel%20i%20ett%20recept%3A%0A%0AMvh%2C%0A">
+  ✉️ Support / Kontakta oss
+</a>
 
 <script>
 const categories = {
@@ -69,7 +135,7 @@ const categories = {
 const drinks = [
   { name:"Gin & Tonic", ingredients:["Gin","Tonic","Limeklyfta"], recipe:[{item:"Gin",amount:"4 cl"},{item:"Tonic",amount:"Toppa upp"}], steps:"Fyll glas med is, häll gin, toppa med tonic. Garnera med limeklyfta." },
   { name:"Screwdriver", ingredients:["Vodka","Apelsinjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Apelsinjuice",amount:"Toppa upp"}], steps:"Fyll glas med is, häll vodka, toppa med apelsinjuice, rör om." },
-  { name:"Cuba Libre", ingredients:["Ljus Rom","Cola","Limeklyfta"], recipe:[{item:"Ljus Rom",amount:"4 cl"},{item:"Limejuice",amount:"1 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Fyll glas med is, häll ljus rom, limejuice och toppa med cola. Garnera med limeklyfta." },
+  { name:"Cuba Libre", ingredients:["Ljus Rom","Cola","Limejuice" ,"Limeklyfta"], recipe:[{item:"Ljus Rom",amount:"4 cl"},{item:"Limejuice",amount:"1 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Fyll glas med is, häll ljus rom, limejuice och toppa med cola. Garnera med limeklyfta." },
   { name:"Tequila Sunrise", ingredients:["Tequila","Apelsinjuice","Grenadin","Apelsinskiva"], recipe:[{item:"Tequila",amount:"4 cl"},{item:"Apelsinjuice",amount:"Toppa upp"},{item:"Grenadin",amount:"1 cl"}], steps:"Häll tequila och apelsinjuice i glas med is, tillsätt grenadin försiktigt. Garnera med apelsinskiva." },
   { name:"Black Russian", ingredients:["Vodka","Kahlua"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Kahlua",amount:"2 cl"}], steps:"Fyll glas med is, häll vodka och Kahlua, rör om." },
   { name:"White Russian", ingredients:["Vodka","Kahlua","Mjölk"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Kahlua",amount:"2 cl"},{item:"Mjölk",amount:"Toppa upp"}], steps:"Fyll glas med is, häll vodka och Kahlua, toppa med mjölk och rör om lätt." },
@@ -80,7 +146,7 @@ const drinks = [
   { name:"Cosmopolitan", ingredients:["Vodka","Cointreau","Tranbärsjuice","Limejuice","Limeklyfta"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Tranbärsjuice",amount:"3 cl"},{item:"Limejuice",amount:"1 cl"}], steps:"Skaka alla ingredienser med is, sila upp i kylt cocktailglas. Garnera med limeklyfta." },
   { name:"Daiquiri", ingredients:["Ljus Rom","Limejuice","Sockerlag"], recipe:[{item:"Ljus Rom",amount:"6 cl"},{item:"Limejuice",amount:"3 cl"},{item:"Sockerlag",amount:"2 cl"}], steps:"Skaka alla ingredienser med is, sila upp i kylt cocktailglas." },
   { name:"French Martini", ingredients:["Vodka","Chambord","Ananasjuice"], recipe:[{item:"Vodka",amount:"4 cl"},{item:"Chambord",amount:"2 cl"},{item:"Ananasjuice",amount:"4 cl"}], steps:"Skaka ingredienser med is, sila upp i kylt cocktailglas." },
-  { name:"Lynchburg Lemonade", ingredients:["Whisky","Cointreau","Citronjuice","Sockerlag","Sodavatten","Citronklyfta"], recipe:[{item:"Whisky",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Sockerlag",amount:"1 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Skaka whisky, Cointreau, citronjuice och sockerlag med is, sila i glas med is,, toppa med sodavatten. Garnera med citronklyfta." },
+  { name:"Lynchburg Lemonade", ingredients:["Whisky","Cointreau","Citronjuice","Sockerlag","Sodavatten","Citronklyfta"], recipe:[{item:"Whisky",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Sockerlag",amount:"1 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Skaka whisky, Cointreau, citronjuice och sockerlag med is, sila i glas med is, toppa med sodavatten. Garnera med citronklyfta." },
   { name:"Tom Collins", ingredients:["Gin","Citronjuice","Sockerlag","Sodavatten","Citronklyfta"], recipe:[{item:"Gin",amount:"6 cl"},{item:"Citronjuice",amount:"3 cl"},{item:"Sockerlag",amount:"2 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Skaka gin, citronjuice och sockerlag med is, sila i glas med is, toppa med sodavatten. Garnera med citronklyfta." },
   { name:"Long Island Ice Tea", ingredients:["Vodka","Gin","Ljus Rom","Tequila","Cointreau","Citronjuice","Sockerlag","Cola","Citronklyfta"], recipe:[{item:"Vodka",amount:"2 cl"},{item:"Gin",amount:"2 cl"},{item:"Ljus Rom",amount:"2 cl"},{item:"Tequila",amount:"2 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"2 cl"},{item:"Sockerlag",amount:"1 cl"},{item:"Cola",amount:"Toppa upp"}], steps:"Skaka alla spritsorter, citronjuice, sockerlag, toppa med cola. Garnera med citronklyfta." },
   { name:"Dry Martini", ingredients:["Gin","Dry Vermouth","Oliv"], recipe:[{item:"Gin",amount:"6 cl"},{item:"Dry Vermouth",amount:"1 cl"}], steps:"Rör gin och dry vermouth med is, sila i kylt martiniglas. Garnera med oliv." },
@@ -95,8 +161,8 @@ const drinks = [
   { name:"Caipirinha", ingredients:["Cachaca","Sockerlag","Limeklyfta"], recipe:[{item:"Cachaca",amount:"6 cl"},{item:"Sockerlag",amount:"2 cl"},{item:"Limeklyfta",amount:"6 st"}], steps:"Muddla limeklyftor med sockerlag, tillsätt is och cachaca, rör om." },
   { name:"B-52", ingredients:["Kahlua","Baileys","Cointreau"], recipe:[{item:"Kahlua",amount:"2 cl"},{item:"Baileys",amount:"2 cl"},{item:"Cointreau",amount:"2 cl"}], steps:"Lägg ingredienserna i lager i ett shotglas." },
   { name:"Old Fashioned", ingredients:["Whisky","Sockerlag","Angostura","Apelsinskiva","Körsbär"], recipe:[{item:"Whisky",amount:"6 cl"},{item:"Sockerlag",amount:"1,5 cl"},{item:"Angostura",amount:"2 dash"}], steps:"Rör ingredienser med is, sila i glas med is. Garnera med apelsinskiva och körsbär." },
-  { name:"Dark & Stormy", ingredients:["Mörk Rom","Ginger Beer","Limeklyfta"], recipe:[{item:"Mörk Rom",amount:"4 cl"},{item:"Limejuice",amount:"2 cl"},{item:"Ginger Beer",amount:"Toppa upp"}], steps:"Fyll glas med is, häll mörk rom, toppa med ginger beer. Garnera med limeklyfta." },
-  { name:"White Lady", ingredients:["Gin","Cointreau","Limejuice","Sockerlag"], recipe:[{item:"Gin",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Limejuice",amount:"3 cl"},{item:"Sockerlag",amount:"1 cl"}], steps:"Skaka ingredienser med is, sila upp i kylt cocktailglas." },
+  { name:"Dark & Stormy", ingredients:["Mörk Rom","Limejuice", "Ginger Beer","Limeklyfta"], recipe:[{item:"Mörk Rom",amount:"4 cl"},{item:"Limejuice",amount:"2 cl"},{item:"Ginger Beer",amount:"Toppa upp"}], steps:"Fyll glas med is, häll mörk rom, toppa med ginger beer. Garnera med limeklyfta." },
+  { name:"White Lady", ingredients:["Gin","Cointreau","Citronjuice","Sockerlag"], recipe:[{item:"Gin",amount:"4 cl"},{item:"Cointreau",amount:"2 cl"},{item:"Citronjuice",amount:"3 cl"},{item:"Sockerlag",amount:"1 cl"}], steps:"Skaka ingredienser med is, sila upp i kylt cocktailglas." },
   { name:"Negroni", ingredients:["Gin","Sweet Vermouth","Campari", "Apelsinskiva"], recipe:[{item:"Gin",amount:"2 cl"},{item:"Sweet Vermouth",amount:"2 cl"},{item:"Campari",amount:"2 cl"}], steps:"Rör drinken med is. Sila upp drinken i ett isfyllt glas. Garnera med apelsinskiva." },
   { name:"Aperol Spritz", ingredients:["Aperol","Mousserande Vin","Sodavatten","Apelsinskiva"], recipe:[{item:"Aperol",amount:"4 cl"},{item:"Mousserande Vin",amount:"6 cl"},{item:"Sodavatten",amount:"Toppa upp"}], steps:"Fyll glas med is, häll Aperol och Prosecco, toppa med sodavatten. Garnera med apelsinskiva." },
   { name:"Mimosa", ingredients:["Mousserande Vin","Apelsinjuice"], recipe:[{item:"Mousserande Vin",amount:"Toppa upp"},{item:"Apelsinjuice",amount:"Toppa upp"}], steps:"Fyll glas med lika delar mousserande vin och apelsinjuice." },
@@ -105,86 +171,436 @@ const drinks = [
   { name:"Irish Coffee", ingredients:["Whisky","Kaffe","Farinsocker","Grädde"], recipe:[{item:"Whisky",amount:"4 cl"},{item:"Kaffe",amount:"Toppa upp"},{item:"Farinsocker",amount:"1 barsked"},{item:"Grädde",amount:"Toppa upp"}], steps:"Fyll glas med kaffe, farinsocker och rör ner whisky. Toppa med lättvispad grädde." },
 
 ];
+// Garnering som inte krävs för att göra drinken
+const garnishesByDrink = {
+  "Gin & Tonic": ["Limeklyfta"],
+  "Cuba Libre": ["Limeklyfta"],
+  "Tequila Sunrise": ["Apelsinskiva"],
+  "Moscow Mule": ["Limeklyfta"],
+  "Cosmopolitan": ["Limeklyfta"],
+  "Lynchburg Lemonade": ["Citronklyfta"],
+  "Tom Collins": ["Citronklyfta"],
+  "Long Island Ice Tea": ["Citronklyfta"],
+  "Dry Martini": ["Oliv"],
+  "Manhattan": ["Körsbär"],
+  "Rob Roy": ["Körsbär"],
+  "Amaretto Sour": ["Körsbär"],
+  "Whiskey Sour": ["Körsbär"],
+  "Old Fashioned": ["Apelsinskiva", "Körsbär"],
+  "Dark & Stormy": ["Limeklyfta"],
+  "Negroni": ["Apelsinskiva"],
+  "Aperol Spritz": ["Apelsinskiva"]
+};
+
+// Smakprofiler för drinkarna
+const drinkProfiles = {
+  "Gin & Tonic": ["Fräscht", "Bubbligt"],
+  "Screwdriver": ["Sött"],
+  "Cuba Libre": ["Sött", "Bubbligt"],
+  "Tequila Sunrise": ["Sött"],
+  "Black Russian": ["Starkt"],
+  "White Russian": ["Krämigt"],
+  "Moscow Mule": ["Fräscht", "Bubbligt"],
+  "Seabreeze": ["Surt", "Fräscht"],
+  "Screaming Orgasm": ["Sött", "Krämigt"],
+  "Sex on the Beach": ["Sött", "Fräscht"],
+  "Cosmopolitan": ["Surt", "Fräscht"],
+  "Daiquiri": ["Surt", "Starkt"],
+  "French Martini": ["Sött"],
+  "Lynchburg Lemonade": ["Sött", "Surt", "Fräscht"],
+  "Tom Collins": ["Surt", "Fräscht", "Bubbligt"],
+  "Long Island Ice Tea": ["Starkt", "Surt"],
+  "Dry Martini": ["Starkt"],
+  "Manhattan": ["Starkt"],
+  "Rob Roy": ["Starkt"],
+  "Batanga": ["Sött", "Bubbligt"],
+  "Margarita": ["Surt", "Starkt"],
+  "Sidecar": ["Surt", "Starkt"],
+  "Amaretto Sour": ["Sött", "Surt"],
+  "Whiskey Sour": ["Surt", "Starkt"],
+  "Mojito": ["Sött", "Surt", "Fräscht", "Bubbligt"],
+  "Caipirinha": ["Sött", "Surt", "Starkt"],
+  "B-52": ["Sött", "Starkt"],
+  "Old Fashioned": ["Starkt"],
+  "Dark & Stormy": ["Starkt", "Bubbligt"],
+  "White Lady": ["Surt", "Starkt"],
+  "Negroni": ["Starkt"],
+  "Aperol Spritz": ["Sött", "Bubbligt", "Fräscht"],
+  "Mimosa": ["Sött", "Bubbligt"],
+  "Espresso Martini": ["Sött", "Starkt"],
+  "Kamikaze": ["Surt", "Starkt"],
+  "Irish Coffee": ["Sött", "Krämigt", "Starkt"]
+};
+
+const profiles = [
+  "Sött", "Surt", "Starkt",
+  "Fräscht", "Bubbligt", "Krämigt"
+];
+
+// --------------------------------------------------
+// SPARADE INSTÄLLNINGAR
+// --------------------------------------------------
 
 const ingredientsDiv = document.getElementById('ingredients');
 const resultsDiv = document.getElementById('results');
+const favoritesDiv = document.getElementById('favorites');
+const profilesDiv = document.getElementById('profiles');
 const surpriseBtn = document.getElementById('surprise');
+const resetBtn = document.getElementById('resetIngredients');
+const searchInput = document.getElementById('search');
 
-// Skapa två kolumner
+let favorites = JSON.parse(localStorage.getItem('drinkFavorites') || '[]');
+let savedIngredients = JSON.parse(localStorage.getItem('drinkIngredients') || '[]');
+let selectedProfiles = [];
+
+function saveFavorites() {
+  localStorage.setItem('drinkFavorites', JSON.stringify(favorites));
+}
+
+function saveIngredients() {
+  const selected = Array.from(
+    document.querySelectorAll('#ingredients input:checked')
+  ).map(cb => cb.value);
+
+  localStorage.setItem('drinkIngredients', JSON.stringify(selected));
+}
+
+
+// --------------------------------------------------
+// SKAPA BARSKÅPET
+// --------------------------------------------------
+
 const leftColumn = document.createElement('div');
 leftColumn.className = 'left-column';
+
 const rightColumn = document.createElement('div');
 rightColumn.className = 'right-column';
+
 ingredientsDiv.appendChild(leftColumn);
 ingredientsDiv.appendChild(rightColumn);
 
-// Skapa checkboxar och placera rätt kolumn
 for (const [cat, items] of Object.entries(categories)) {
+
   const categoryDiv = document.createElement('div');
   categoryDiv.className = 'category';
+
   const h3 = document.createElement('h3');
   h3.textContent = cat;
   categoryDiv.appendChild(h3);
-  items.forEach(i=>{
-    const id = encodeURIComponent(i);
+
+  items.forEach(item => {
+
     const label = document.createElement('label');
-    label.innerHTML = `<input type="checkbox" value="${i}" id="${id}"> ${i}`;
+    const checkbox = document.createElement('input');
+
+    checkbox.type = 'checkbox';
+    checkbox.value = item;
+    checkbox.id = encodeURIComponent(item);
+
+    checkbox.checked = savedIngredients.includes(item);
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + item));
+
     categoryDiv.appendChild(label);
   });
 
-  // Placera i vänster eller höger kolumn
-  if(cat === "Alkohol" || cat === "Frukt / Garnering") {
+  if (cat === 'Alkohol' || cat === 'Frukt / Garnering') {
     leftColumn.appendChild(categoryDiv);
   } else {
     rightColumn.appendChild(categoryDiv);
   }
 }
 
-// Eventlisteners
-document.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.addEventListener('change', updateResults));
-surpriseBtn.addEventListener('click', () => {
-  document.querySelectorAll('.drink.highlight').forEach(d=>d.classList.remove('highlight','open'));
-  if(resultsDiv.children.length===0) updateResults();
-  const allDrinks = Array.from(resultsDiv.children);
-  if(allDrinks.length===0) return;
-  const random = allDrinks[Math.floor(Math.random()*allDrinks.length)];
-  random.scrollIntoView({behavior:'smooth',block:'center'});
-  random.classList.add('highlight','open');
+
+// --------------------------------------------------
+// SKAPA SMAKPROFILER
+// --------------------------------------------------
+
+profiles.forEach(profile => {
+
+  const label = document.createElement('label');
+  const checkbox = document.createElement('input');
+
+  checkbox.type = 'checkbox';
+  checkbox.value = profile;
+
+  checkbox.addEventListener('change', () => {
+
+    selectedProfiles = Array.from(
+      profilesDiv.querySelectorAll('input:checked')
+    ).map(cb => cb.value);
+
+    updateResults();
+  });
+
+  label.appendChild(checkbox);
+  label.appendChild(document.createTextNode(' ' + profile));
+
+  profilesDiv.appendChild(label);
 });
 
+
+// --------------------------------------------------
+// SKAPA DRINKKORT
+// --------------------------------------------------
+
+function createDrinkCard(drink, selected) {
+
+  const baseIngredients = drink.recipe.map(r => r.item);
+  const garnishes = garnishesByDrink[drink.name] || [];
+
+  const missing = baseIngredients.filter(
+    item => !selected.includes(item)
+  );
+
+  let status = 'missing';
+
+  if (missing.length === 0) {
+    status = 'possible';
+  } else if (baseIngredients.some(item => selected.includes(item))) {
+    status = 'almost';
+  }
+
+  const isFavorite = favorites.includes(drink.name);
+
+  const div = document.createElement('div');
+  div.className = 'drink ' + status;
+
+  const header = document.createElement('div');
+  header.className = 'drink-header';
+
+  const title = document.createElement('strong');
+  title.textContent = drink.name;
+
+  const favoriteBtn = document.createElement('button');
+  favoriteBtn.className = 'favorite-btn';
+  favoriteBtn.textContent = isFavorite ? '★' : '☆';
+
+  if (isFavorite) {
+    favoriteBtn.classList.add('active');
+  }
+
+  favoriteBtn.addEventListener('click', () => {
+
+    if (favorites.includes(drink.name)) {
+      favorites = favorites.filter(name => name !== drink.name);
+    } else {
+      favorites.push(drink.name);
+    }
+
+    saveFavorites();
+    updateResults();
+  });
+
+  header.appendChild(title);
+  header.appendChild(favoriteBtn);
+  div.appendChild(header);
+
+  const details = document.createElement('div');
+  details.className = 'details';
+
+  const recipeItems = drink.recipe.map(r => {
+
+    const isMissing = !selected.includes(r.item);
+
+    return `
+      <li class="${isMissing ? 'missing-ingredient' : ''}">
+        ${r.amount} ${r.item}
+      </li>
+    `;
+  }).join('');
+
+  const garnishItems = garnishes.map(g => `
+    <li style="color:#888">
+      Garnering: ${g} (valfritt)
+    </li>
+  `).join('');
+
+  const missingText = missing.length
+    ? `<p class="missing-ingredient">Saknas: ${missing.join(', ')}</p>`
+    : `<p style="color:green;font-weight:bold">Du har allt som behövs!</p>`;
+
+  const drinkProfileList = drinkProfiles[drink.name] || [];
+
+  const profileText = drinkProfileList.length
+    ? `<p><small>Smakprofil: ${drinkProfileList.join(' · ')}</small></p>`
+    : '';
+
+  details.innerHTML = `
+    ${profileText}
+    <h4>Recept:</h4>
+    ${missingText}
+    <ul>
+      ${recipeItems}
+      ${garnishItems}
+    </ul>
+    <p><em>${drink.steps}</em></p>
+  `;
+
+  div.appendChild(details);
+
+  title.addEventListener('click', () => {
+    div.classList.toggle('open');
+  });
+
+  return div;
+}
+
+
+// --------------------------------------------------
+// UPPDATERA FAVORITER OCH RESULTAT
+// --------------------------------------------------
+
 function updateResults() {
-  const selected = Array.from(document.querySelectorAll('input:checked')).map(cb=>cb.value);
+
+  const selected = Array.from(
+    document.querySelectorAll('#ingredients input:checked')
+  ).map(cb => cb.value);
+
+  const searchTerm = searchInput.value.toLowerCase().trim();
+
+  saveIngredients();
+
+  // FAVORITER – visas alltid
+  favoritesDiv.innerHTML = '';
+
+  const favoriteDrinks = drinks.filter(drink =>
+    favorites.includes(drink.name)
+  );
+
+  if (favoriteDrinks.length === 0) {
+    favoritesDiv.innerHTML =
+      '<p>Du har inga favoriter ännu. Tryck på ☆ vid en drink för att spara den.</p>';
+  } else {
+    favoriteDrinks.forEach(drink => {
+      favoritesDiv.appendChild(createDrinkCard(drink, selected));
+    });
+  }
+
+  // RESULTAT
   resultsDiv.innerHTML = '';
 
-  const drinksWithStatus = drinks.map(drink => {
-    const missing = drink.ingredients.filter(i=>!selected.includes(i));
-    const selectedCount = drink.ingredients.length - missing.length;
-    let status = 'missing';
-    if(missing.length === 0) status = 'possible';
-    else if(selectedCount > 0 && missing.length <= 2) status = 'almost';
-    return { ...drink, status };
+  if (selected.length === 0 && searchTerm === '') {
+    resultsDiv.innerHTML =
+      '<p>Välj ingredienser i barskåpet för att se vilka drinkar du kan göra.</p>';
+    return;
+  }
+
+  const matchingDrinks = drinks.filter(drink => {
+
+    const matchesSearch =
+      searchTerm === '' ||
+      drink.name.toLowerCase().includes(searchTerm) ||
+      drink.ingredients.some(i => i.toLowerCase().includes(searchTerm)) ||
+      drink.recipe.some(r => r.item.toLowerCase().includes(searchTerm));
+
+    const drinkProfileList = drinkProfiles[drink.name] || [];
+
+    const matchesProfile =
+      selectedProfiles.length === 0 ||
+      selectedProfiles.some(profile => drinkProfileList.includes(profile));
+
+    return matchesSearch && matchesProfile;
   });
 
-  drinksWithStatus.sort((a,b)=>{
-    const order = { possible:0, almost:1, missing:2 };
-    return order[a.status]-order[b.status];
+  const visibleDrinks = matchingDrinks.map(drink => {
+
+    const baseIngredients = drink.recipe.map(r => r.item);
+
+    const selectedCount = baseIngredients.filter(
+      item => selected.includes(item)
+    ).length;
+
+    return {
+      drink,
+      selectedCount,
+      possible: selectedCount === baseIngredients.length
+    };
+
+  }).filter(item => {
+
+    // Vid sökning visas alla matchningar.
+    // Annars krävs minst en ingrediens i barskåpet.
+    return searchTerm !== '' ||
+       selected.length === 0 ||
+       item.selectedCount > 0;
+
   });
 
-  drinksWithStatus.forEach(drink=>{
-    const div = document.createElement('div');
-    div.classList.add('drink', drink.status);
-    div.innerHTML=`<strong>${drink.name}</strong>`;
+  visibleDrinks.sort((a, b) => {
 
-    const details = document.createElement('div');
-    details.className='details';
-    const baseItems = drink.recipe.map(r=>r.item);
-    const garnishes = drink.ingredients.filter(i=>!baseItems.includes(i));
-    details.innerHTML=`<h4>Recept:</h4><ul>${drink.recipe.map(r=>`<li class="${!selected.includes(r.item)?'missing-ingredient':''}">${r.amount} ${r.item}</li>`).join('')}${garnishes.map(g=>`<li class="${!selected.includes(g)?'missing-ingredient':''}">Garnera med ${g}</li>`).join('')}</ul><p><em>${drink.steps}</em></p>`;
-    div.appendChild(details);
-    div.querySelector('strong').addEventListener('click',()=>{div.classList.toggle('open')});
-    resultsDiv.appendChild(div);
+    if (a.possible !== b.possible) {
+      return Number(b.possible) - Number(a.possible);
+    }
+
+    return b.selectedCount - a.selectedCount;
+  });
+
+  if (visibleDrinks.length === 0) {
+    resultsDiv.innerHTML =
+      '<p>Inga drinkar matchar dina val. Testa fler ingredienser eller en annan sökning.</p>';
+    return;
+  }
+
+  visibleDrinks.forEach(item => {
+    resultsDiv.appendChild(createDrinkCard(item.drink, selected));
   });
 }
+
+
+// --------------------------------------------------
+// KNAPPAR OCH EVENTLISTENERS
+// --------------------------------------------------
+
+document.querySelectorAll('#ingredients input').forEach(cb => {
+  cb.addEventListener('change', updateResults);
+});
+
+searchInput.addEventListener('input', updateResults);
+
+surpriseBtn.addEventListener('click', () => {
+
+  document.querySelectorAll('.drink.highlight').forEach(d => {
+    d.classList.remove('highlight', 'open');
+  });
+
+  const allDrinks = Array.from(resultsDiv.children).filter(
+    d => d.classList.contains('drink')
+  );
+
+  if (allDrinks.length === 0) return;
+
+  const random = allDrinks[
+    Math.floor(Math.random() * allDrinks.length)
+  ];
+
+  random.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  random.classList.add('highlight', 'open');
+});
+
+resetBtn.addEventListener('click', () => {
+
+  document.querySelectorAll('#ingredients input').forEach(cb => {
+    cb.checked = false;
+  });
+
+  savedIngredients = [];
+  localStorage.removeItem('drinkIngredients');
+
+  updateResults();
+});
+
+
+// --------------------------------------------------
+// STARTA APPEN
+// --------------------------------------------------
+
+updateResults();
 </script>
 </body>
 </html>
