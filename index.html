@@ -9,6 +9,10 @@
 <style>
 * { box-sizing:border-box; }
 html { scroll-behavior:auto; }
+html {
+  overflow-anchor: none;
+}
+
 
 body {
   font-family:system-ui,sans-serif;
@@ -554,9 +558,8 @@ let shoppingDrinks=JSON.parse(localStorage.getItem("drinkShoppingDrinks")||"[]")
 let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")||"[]");
 let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
 
-// Separat öppningsstatus för de två listorna.
-let openDrinkNames=new Set();
-let openFavoriteDrinkNames=new Set();
+// Endast ett drinkkort kan vara öppet åt gången.
+let openDrinkName=null;
 
 let openShoppingRecipes=new Set();
 
@@ -1068,10 +1071,8 @@ function createDrinkCard(drink,selected,context="results"){
   card.className="drink "+status;
   card.dataset.drink=drink.name;
 
-  const isOpen=context==="favorite"
-    ?openFavoriteDrinkNames.has(drink.name)
-    :openDrinkNames.has(drink.name);
-
+  const isOpen=openDrinkName===drink.name;
+  
   if(isOpen){
     card.classList.add("open");
   }
@@ -1156,19 +1157,14 @@ function createDrinkCard(drink,selected,context="results"){
 
   // Öppna bara det kort som klickas.
   // Favoriter och resultat har separata öppningslägen.
-  title.addEventListener("click",()=>{
-    const openSet=context==="favorite"
-      ?openFavoriteDrinkNames
-      :openDrinkNames;
+  // Ett öppet kort globalt, även mellan favoriter och resultat.
+title.addEventListener("click",()=>{
+  openDrinkName=openDrinkName===drink.name?null:drink.name;
 
-    if(openSet.has(drink.name)){
-      openSet.delete(drink.name);
-      card.classList.remove("open");
-    }else{
-      openSet.add(drink.name);
-      card.classList.add("open");
-    }
+  document.querySelectorAll(".drink").forEach(other=>{
+    other.classList.toggle("open",other.dataset.drink===openDrinkName);
   });
+});
 
   card.appendChild(details);
   return card;
@@ -1313,7 +1309,7 @@ document.getElementById("surprise")
 
     const pick=cards[Math.floor(Math.random()*cards.length)];
 
-    openDrinkNames.add(pick.dataset.drink);
+    openDrinkName=pick.dataset.drink;
     updateResults();
 
     const opened=Array.from(resultsDiv.children)
