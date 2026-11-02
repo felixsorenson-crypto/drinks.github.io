@@ -5,123 +5,333 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Drinkassistent 🍸</title>
+
 <style>
 * { box-sizing:border-box; }
+
 body {
   font-family:system-ui,sans-serif;
-  background:#fafafa;color:#222;
-  margin:0;padding:1rem;
-  max-width:1000px;margin-inline:auto;
+  background:#fafafa;
+  color:#222;
+  margin:0;
+  padding:1rem;
+  max-width:1000px;
+  margin-inline:auto;
 }
-h1{text-align:center}
-h2{margin-top:1.6rem}
-button{font:inherit;cursor:pointer}
-#ingredients{
+
+h1 { text-align:center; }
+h2 { margin-top:1.6rem; }
+
+button { font:inherit; cursor:pointer; }
+
+details.section {
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:.9rem 1rem;
+  margin:1rem 0;
+}
+
+details.section > summary {
+  cursor:pointer;
+  font-weight:700;
+  font-size:1.1rem;
+  list-style:none;
+}
+
+details.section > summary::-webkit-details-marker {
+  display:none;
+}
+
+details.section > summary::after {
+  content:"＋";
+  float:right;
+  color:#777;
+}
+
+details.section[open] > summary::after {
+  content:"−";
+}
+
+#ingredients {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:1rem;
+  margin-top:1rem;
 }
-.left-column,.right-column{
-  display:grid;align-content:start;gap:.8rem;
+
+.left-column,.right-column {
+  display:grid;
+  align-content:start;
+  gap:.8rem;
 }
-.category{display:grid;gap:.35rem}
-.category h3{margin:0;font-size:1rem}
-label{display:block;cursor:pointer}
-.drink{
-  border:1px solid #ccc;border-radius:12px;
-  padding:12px;margin:10px 0;background:#fff;
+
+.category {
+  border:1px solid #eee;
+  border-radius:9px;
+  padding:.6rem;
 }
-.possible{background:#e5f8e4;border-color:#9bd59a}
-.almost{background:#fff8dc;border-color:#ead58b}
-.details{margin-top:.6rem;font-size:.92rem;display:none}
-.drink.open .details{display:block}
-.drink-header{display:flex;align-items:center;gap:.5rem}
-.drink-header strong{cursor:pointer;flex:1}
-.favorite-btn{
-  border:0;background:none;font-size:25px;
-  color:#aaa;padding:0 .25rem;
+
+.category summary {
+  cursor:pointer;
+  font-weight:650;
 }
-.favorite-btn.active{color:#e0a000}
-.action-btn{
-  border:1px solid #c9c9c9;border-radius:9px;
-  padding:.55rem .75rem;background:#fff;
+
+.category label {
+  display:block;
+  cursor:pointer;
+  margin:.4rem 0;
 }
-.action-btn.selected{background:#e7f2ff;border-color:#3983d6}
-.mode-switch{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:.5rem;margin:1rem 0;
+
+.drink {
+  border:1px solid #ccc;
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0;
+  background:#fff;
 }
-.mode-switch button{
-  padding:.8rem .5rem;border:1px solid #bbb;
-  border-radius:12px;background:#fff;font-weight:650;
+
+.possible {
+  background:#e5f8e4;
+  border-color:#9bd59a;
 }
-.mode-switch button.active{
-  background:#173f67;color:#fff;border-color:#173f67;
+
+.almost {
+  background:#fff8dc;
+  border-color:#ead58b;
 }
-#profiles{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:.55rem;margin:.7rem 0 1rem;
+
+.details {
+  margin-top:.6rem;
+  font-size:.92rem;
+  display:none;
 }
-.profile-btn{
-  border:1px solid #d2d2d2;background:#fff;
-  border-radius:12px;padding:.75rem .35rem;
-  display:flex;flex-direction:column;
-  align-items:center;gap:.2rem;min-height:76px;
+
+.drink.open .details {
+  display:block;
 }
-.profile-btn .emoji{font-size:1.5rem}
-.profile-btn.active{
-  border:2px solid #26834a;background:#e7f6eb;
+
+.drink-header {
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+
+.drink-header strong {
+  cursor:pointer;
+  flex:1;
+}
+
+.favorite-btn {
+  border:0;
+  background:none;
+  font-size:25px;
+  color:#aaa;
+  padding:0 .25rem;
+}
+
+.favorite-btn.active {
+  color:#e0a000;
+}
+
+.action-btn {
+  border:1px solid #c9c9c9;
+  border-radius:9px;
+  padding:.55rem .75rem;
+  background:#fff;
+}
+
+.action-btn.selected {
+  background:#e7f2ff;
+  border-color:#3983d6;
+}
+
+.mode-switch {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.5rem;
+  margin:1rem 0;
+}
+
+.mode-switch button {
+  padding:.8rem .5rem;
+  border:1px solid #bbb;
+  border-radius:12px;
+  background:#fff;
+  font-weight:650;
+}
+
+.mode-switch button.active {
+  background:#173f67;
+  color:#fff;
+  border-color:#173f67;
+}
+
+#profiles {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:.55rem;
+  margin:.7rem 0 1rem;
+}
+
+.profile-btn {
+  border:1px solid #d2d2d2;
+  background:#fff;
+  border-radius:12px;
+  padding:.75rem .35rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.2rem;
+  min-height:76px;
+}
+
+.profile-btn .emoji { font-size:1.5rem; }
+
+.profile-btn.active {
+  border:2px solid #26834a;
+  background:#e7f6eb;
   padding:calc(.75rem - 1px) calc(.35rem - 1px);
 }
-#search{
-  display:block;width:100%;padding:13px;
-  margin:18px 0;border:1px solid #ccc;
-  border-radius:10px;font-size:16px;
+
+#search {
+  display:block;
+  width:100%;
+  padding:13px;
+  margin:18px 0;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:16px;
 }
-#surprise{
-  display:block;margin:1rem auto;padding:.75rem 1.5rem;
-  font-size:1.05rem;border:0;border-radius:10px;
-  background:#007bff;color:white;
+
+#surprise {
+  display:block;
+  margin:1rem auto;
+  padding:.75rem 1.5rem;
+  font-size:1.05rem;
+  border:0;
+  border-radius:10px;
+  background:#007bff;
+  color:white;
 }
-.highlight{border:2px solid #ff9800;box-shadow:0 0 10px #ff9800}
-.missing-ingredient{color:#d92525;font-weight:650}
-.drink-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.65rem}
-.shopping-panel{
-  background:#fff;border:1px solid #ccc;
-  border-radius:12px;padding:1rem;margin:1rem 0;
+
+.highlight {
+  border:2px solid #ff9800;
+  box-shadow:0 0 10px #ff9800;
 }
-.shopping-row{
-  display:flex;align-items:center;gap:.6rem;
-  padding:.45rem 0;border-bottom:1px solid #eee;
+
+.missing-ingredient {
+  color:#d92525;
+  font-weight:650;
 }
-.shopping-row input{width:18px;height:18px}
-.shopping-row .qty{color:#666;font-size:.85rem;margin-left:auto}
-.muted{color:#666;font-size:.9rem}
-.support{
-  display:block;text-align:center;margin:35px auto 15px;
-  padding:12px;background:#eee;color:#333;
-  border-radius:10px;text-decoration:none;max-width:300px;
+
+.drink-actions {
+  display:flex;
+  gap:.5rem;
+  flex-wrap:wrap;
+  margin-top:.65rem;
 }
-@media(max-width:600px){
-  body{padding:.8rem}
-  #ingredients{gap:.7rem}
+
+.shopping-panel {
+  margin-top:1rem;
+}
+
+.shopping-row {
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.55rem 0;
+  border-bottom:1px solid #eee;
+}
+
+.shopping-row input {
+  width:19px;
+  height:19px;
+  flex-shrink:0;
+}
+
+.shopping-row .qty {
+  color:#777;
+  font-size:.8rem;
+  margin-left:auto;
+  text-align:right;
+}
+
+.shopping-row.done span {
+  text-decoration:line-through;
+  color:#999;
+}
+
+.shopping-row.done {
+  opacity:.75;
+}
+
+.shopping-heading {
+  margin-top:1.2rem;
+  margin-bottom:.3rem;
+}
+
+.muted {
+  color:#666;
+  font-size:.9rem;
+}
+
+.support {
+  display:block;
+  text-align:center;
+  margin:35px auto 15px;
+  padding:12px;
+  background:#eee;
+  color:#333;
+  border-radius:10px;
+  text-decoration:none;
+  max-width:300px;
+}
+
+@media(max-width:600px) {
+  body { padding:.8rem; }
+  #ingredients { gap:.7rem; }
+  .shopping-row .qty { max-width:42%; }
 }
 </style>
 </head>
+
 <body>
 
 <h1>🍹 Drinkassistent</h1>
 <p>Markera vad du har hemma – eller hitta drinkar att handla ingredienser till.</p>
 
-<h2>⭐ Mina favoriter</h2>
-<div id="favorites"></div>
+<!-- FAVORITER -->
 
-<h2>🥃 Mitt barskåp</h2>
-<div id="ingredients"></div>
-<button class="action-btn" id="resetIngredients">↻ Återställ barskåp</button>
+<details class="section" id="favoritesSection" open>
+  <summary>⭐ Mina favoriter</summary>
+  <div id="favorites"></div>
+</details>
 
-<h2>Vad är du sugen på?</h2>
-<p class="muted">Välj en eller flera smakprofiler. Du behöver inte ha några ingredienser ibockade.</p>
+<!-- INKÖPSLISTA -->
+
+<details class="section" id="shoppingSection" open>
+  <summary>🛒 Min inköpslista</summary>
+  <div id="shoppingPanel" class="shopping-panel"></div>
+</details>
+
+<!-- BARSKÅP -->
+
+<details class="section" id="barSection">
+  <summary>🥃 Mitt barskåp</summary>
+  <div id="ingredients"></div>
+  <button class="action-btn" id="resetIngredients">
+    ↻ Återställ barskåp
+  </button>
+</details>
+
+<!-- SMAKPROFILER -->
+
+<h2>Vad är jag sugen på?</h2>
+<p class="muted">
+  Välj en eller flera smakprofiler. Du behöver inte ha några ingredienser ibockade.
+</p>
+
 <div id="profiles"></div>
 
 <div class="mode-switch">
@@ -135,9 +345,7 @@ autocomplete="off">
 
 <button id="surprise">🎲 Överraska mig!</button>
 
-<div id="shoppingPanel" class="shopping-panel" hidden></div>
-
-<h2 id="resultsHeading">🍹 Drinkar du kan göra</h2>
+<h2 id="resultsHeading">🍹 Drinkförslag</h2>
 <div id="results"></div>
 
 <a class="support"
@@ -173,7 +381,7 @@ const categories = {
 ]
 };
 
-// recipe är den enda sanningskällan för ingredienserna.
+// RECEPT
 
 const drinks = [
 {name:"Gin & Tonic",recipe:[["Gin","4 cl"],["Tonic","Toppa upp"]],steps:"Fyll glas med is, häll gin och toppa med tonic."},
@@ -292,7 +500,12 @@ let savedIngredients=JSON.parse(localStorage.getItem("drinkIngredients")||"[]");
 let selectedProfiles=[];
 let mode="make";
 let shoppingDrinks=JSON.parse(localStorage.getItem("drinkShoppingDrinks")||"[]");
-let checkedShopping=JSON.parse(localStorage.getItem("drinkShoppingChecked")||"[]");
+
+// Inköpta ingredienser och ingredienser som automatiskt lades i barskåpet.
+let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")||"[]");
+let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
+
+let openDrinkName=null;
 
 function selectedIngredients(){
   return Array.from(
@@ -301,10 +514,8 @@ function selectedIngredients(){
 }
 
 function saveIngredients(){
-  localStorage.setItem(
-    "drinkIngredients",
-    JSON.stringify(selectedIngredients())
-  );
+  savedIngredients=selectedIngredients();
+  localStorage.setItem("drinkIngredients",JSON.stringify(savedIngredients));
 }
 
 function saveFavorites(){
@@ -313,7 +524,8 @@ function saveFavorites(){
 
 function saveShopping(){
   localStorage.setItem("drinkShoppingDrinks",JSON.stringify(shoppingDrinks));
-  localStorage.setItem("drinkShoppingChecked",JSON.stringify(checkedShopping));
+  localStorage.setItem("drinkPurchasedShopping",JSON.stringify(purchasedShopping));
+  localStorage.setItem("drinkAutoAddedShopping",JSON.stringify(autoAddedShopping));
 }
 
 function esc(s){
@@ -323,7 +535,7 @@ function esc(s){
   }[c]));
 }
 
-// SKAPA BARSKÅPET
+// BARSKÅP
 
 const leftColumn=document.createElement("div");
 leftColumn.className="left-column";
@@ -334,10 +546,11 @@ rightColumn.className="right-column";
 ingredientsDiv.append(leftColumn,rightColumn);
 
 Object.entries(categories).forEach(([cat,items])=>{
-  const category=document.createElement("div");
+  const category=document.createElement("details");
   category.className="category";
+  category.open=false;
 
-  const heading=document.createElement("h3");
+  const heading=document.createElement("summary");
   heading.textContent=cat;
   category.appendChild(heading);
 
@@ -379,16 +592,26 @@ profileOptions.forEach(p=>{
       ?selectedProfiles.filter(x=>x!==p.name)
       :[...selectedProfiles,p.name];
 
-    btn.classList.toggle(
-      "active",
-      selectedProfiles.includes(p.name)
-    );
-
+    btn.classList.toggle("active",selectedProfiles.includes(p.name));
     updateResults();
   });
 
   profilesDiv.appendChild(btn);
 });
+
+// HJÄLPFUNKTIONER FÖR BARSKÅPET
+
+function setBarIngredient(item,checked){
+  const checkbox=Array.from(
+    document.querySelectorAll("#ingredients input")
+  ).find(cb=>cb.value===item);
+
+  if(checkbox){
+    checkbox.checked=checked;
+  }
+
+  saveIngredients();
+}
 
 // INKÖPSLISTA
 
@@ -396,30 +619,66 @@ function addDrinkToShopping(name){
   if(!shoppingDrinks.includes(name)){
     shoppingDrinks.push(name);
   }
+
   saveShopping();
-  renderShoppingList();
   updateResults();
 }
 
 function removeDrinkFromShopping(name){
   shoppingDrinks=shoppingDrinks.filter(n=>n!==name);
   saveShopping();
-  renderShoppingList();
   updateResults();
+}
+
+function getShoppingItems(chosen){
+  const needed=new Map();
+
+  chosen.forEach(d=>{
+    d.recipe.forEach(([item])=>{
+      if(!needed.has(item)){
+        needed.set(item,{optional:false,drinks:[]});
+      }
+
+      needed.get(item).drinks.push(d.name);
+    });
+
+    // Garneringar läggs också till, men markeras som valfria.
+    (garnishesByDrink[d.name]||[]).forEach(item=>{
+      if(!needed.has(item)){
+        needed.set(item,{optional:true,drinks:[]});
+      }
+
+      needed.get(item).optional=true;
+
+      if(!needed.get(item).drinks.includes(d.name)){
+        needed.get(item).drinks.push(d.name);
+      }
+    });
+  });
+
+  return needed;
 }
 
 function renderShoppingList(){
   const selected=selectedIngredients();
 
-  const chosen=drinks.filter(d=>
-    shoppingDrinks.includes(d.name)
+  const chosen=drinks.filter(d=>shoppingDrinks.includes(d.name));
+  const needed=getShoppingItems(chosen);
+
+  const allItems=[...needed.keys()].sort((a,b)=>a.localeCompare(b,"sv"));
+
+  // Varor som redan finns i barskåpet visas inte bland det som ska handlas.
+  // Men inköpta varor visas alltid i den färdiga delen.
+  const activeItems=allItems.filter(item=>
+    !selected.includes(item)&&!purchasedShopping.includes(item)
   );
 
-  shoppingPanel.hidden=mode!=="shop"&&chosen.length===0;
+  const completedItems=allItems.filter(item=>
+    purchasedShopping.includes(item)
+  );
 
   if(chosen.length===0){
     shoppingPanel.innerHTML=`
-      <h3>🛒 Din inköpslista</h3>
       <p class="muted">
         Lägg till drinkar med knappen ”+ Inköpslista”
         så samlar vi ingredienserna här.
@@ -428,46 +687,49 @@ function renderShoppingList(){
     return;
   }
 
-  const needed=new Map();
-
-  chosen.forEach(d=>{
-    d.recipe.forEach(([item,amount])=>{
-      if(!selected.includes(item)){
-        needed.set(item,(needed.get(item)||0)+1);
-      }
-    });
-  });
-
-  const rows=[...needed.keys()].sort((a,b)=>
-    a.localeCompare(b,"sv")
-  );
-
-  const done=rows.filter(x=>checkedShopping.includes(x)).length;
-
   shoppingPanel.innerHTML=`
-    <h3>🛒 Din inköpslista</h3>
     <p class="muted">
-      För ${chosen.length} valda drinkar.
+      Inköpslista för ${chosen.length} valda drinkar.
       Ingredienser du redan har hemma är borttagna.
     </p>
-    <p><strong>${done} av ${rows.length}</strong> ingredienser avbockade</p>
 
-    ${rows.length?rows.map(item=>`
-      <label class="shopping-row">
-        <input type="checkbox"
-          data-shop-item="${esc(item)}"
-          ${checkedShopping.includes(item)?"checked":""}>
-        <span>${esc(item)}</span>
-        <span class="qty">
-          Till ${chosen.filter(d=>
-            d.recipe.some(r=>r[0]===item)
-          ).map(d=>esc(d.name)).join(", ")}
-        </span>
-      </label>
-    `).join(""):`
-      <p style="color:green;font-weight:650">
-        Du har redan alla ingredienser! 🎉
-      </p>
+    <h3 class="shopping-heading">🛒 Att handla (${activeItems.length})</h3>
+
+    ${activeItems.length?activeItems.map(item=>{
+      const info=needed.get(item);
+
+      return `
+        <label class="shopping-row">
+          <input type="checkbox" data-shop-item="${esc(item)}">
+          <span>
+            ${esc(item)}
+            ${info.optional?'<small class="muted">(valfritt)</small>':""}
+          </span>
+          <span class="qty">${info.drinks.map(esc).join(", ")}</span>
+        </label>
+      `;
+    }).join(""):`
+      <p class="muted">Inget kvar att handla just nu. 🎉</p>
+    `}
+
+    <h3 class="shopping-heading">✅ Klart handlat (${completedItems.length})</h3>
+
+    ${completedItems.length?completedItems.map(item=>{
+      const info=needed.get(item);
+
+      return `
+        <label class="shopping-row done">
+          <input type="checkbox"
+            data-shop-item="${esc(item)}" checked>
+          <span>
+            ${esc(item)}
+            ${info.optional?'<small class="muted">(valfritt)</small>':""}
+          </span>
+          <span class="qty">${info.drinks.map(esc).join(", ")}</span>
+        </label>
+      `;
+    }).join(""):`
+      <p class="muted">Inga inköpta ingredienser ännu.</p>
     `}
 
     <div class="drink-actions">
@@ -480,8 +742,8 @@ function renderShoppingList(){
     </div>
 
     <p class="muted">
-      Mängderna är receptmängder per drink,
-      inte rekommenderade flaskstorlekar.
+      Valfria garneringar ingår också. Receptmängderna är inte
+      rekommenderade flaskstorlekar.
     </p>
 
     <h4>Valda drinkar</h4>
@@ -493,12 +755,28 @@ function renderShoppingList(){
       cb.addEventListener("change",()=>{
         const item=cb.dataset.shopItem;
 
-        checkedShopping=cb.checked
-          ?[...new Set([...checkedShopping,item])]
-          :checkedShopping.filter(x=>x!==item);
+        if(cb.checked){
+          if(!purchasedShopping.includes(item)){
+            purchasedShopping.push(item);
+          }
+
+          // Lägg till i barskåpet om den inte redan finns där.
+          if(!selectedIngredients().includes(item)){
+            autoAddedShopping.push(item);
+            setBarIngredient(item,true);
+          }
+        }else{
+          purchasedShopping=purchasedShopping.filter(x=>x!==item);
+
+          // Ta bara bort från barskåpet om inköpslistan lade till den.
+          if(autoAddedShopping.includes(item)){
+            autoAddedShopping=autoAddedShopping.filter(x=>x!==item);
+            setBarIngredient(item,false);
+          }
+        }
 
         saveShopping();
-        renderShoppingList();
+        updateResults();
       });
     });
 
@@ -506,30 +784,32 @@ function renderShoppingList(){
     .addEventListener("click",()=>{
       const text=[
         "Inköpslista",
-        ...rows.filter(x=>!checkedShopping.includes(x))
-          .map(x=>"- "+x)
+        ...activeItems.map(x=>"- "+x)
       ].join("\n");
 
-      navigator.clipboard?.writeText(text)
-        .then(()=>alert("Inköpslistan kopierades."))
-        .catch(()=>alert(text));
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text)
+          .then(()=>alert("Inköpslistan kopierades."))
+          .catch(()=>alert(text));
+      }else{
+        alert(text);
+      }
     });
 
   document.getElementById("clearShopping")
     .addEventListener("click",()=>{
       shoppingDrinks=[];
-      checkedShopping=[];
+      purchasedShopping=[];
+      autoAddedShopping=[];
       saveShopping();
-      renderShoppingList();
       updateResults();
     });
 }
 
-// SKAPA DRINKKORT
+// DRINKKORT
 
 function createDrinkCard(drink,selected){
   const base=drink.recipe.map(r=>r[0]);
-
   const missing=base.filter(x=>!selected.includes(x));
 
   const status=missing.length===0
@@ -541,6 +821,10 @@ function createDrinkCard(drink,selected){
 
   const card=document.createElement("div");
   card.className="drink "+status;
+
+  if(openDrinkName===drink.name){
+    card.classList.add("open");
+  }
 
   const header=document.createElement("div");
   header.className="drink-header";
@@ -616,8 +900,10 @@ function createDrinkCard(drink,selected){
         :addDrinkToShopping(drink.name);
     });
 
+  // Endast klick på drinknamnet öppnar eller stänger receptet.
   title.addEventListener("click",()=>{
-    card.classList.toggle("open");
+    openDrinkName=openDrinkName===drink.name?null:drink.name;
+    updateResults();
   });
 
   card.appendChild(details);
@@ -636,9 +922,10 @@ function updateResults(){
 
   favoritesDiv.innerHTML="";
 
-  const favs=drinks.filter(d=>
-    favorites.includes(d.name)
-  );
+  const favs=drinks.filter(d=>favorites.includes(d.name));
+
+  document.querySelector("#favoritesSection summary").textContent=
+    `⭐ Mina favoriter (${favs.length})`;
 
   if(!favs.length){
     favoritesDiv.innerHTML=`
@@ -659,7 +946,8 @@ function updateResults(){
     const matchesSearch=
       !term||
       d.name.toLowerCase().includes(term)||
-      d.recipe.some(r=>r[0].toLowerCase().includes(term));
+      d.recipe.some(r=>r[0].toLowerCase().includes(term))||
+      (garnishesByDrink[d.name]||[]).some(g=>g.toLowerCase().includes(term));
 
     const p=drinkProfiles[d.name]||[];
 
@@ -696,16 +984,11 @@ function updateResults(){
 
   if(!ranked.length){
     resultsDiv.innerHTML=`
-      <p>
-        Inga drinkar matchar dina val.
-        Testa en annan smakprofil eller sökning.
-      </p>
+      <p>Inga drinkar matchar dina val. Testa en annan smakprofil eller sökning.</p>
     `;
   }else{
     ranked.forEach(x=>
-      resultsDiv.appendChild(
-        createDrinkCard(x.drink,selected)
-      )
+      resultsDiv.appendChild(createDrinkCard(x.drink,selected))
     );
   }
 
@@ -745,6 +1028,7 @@ document.getElementById("resetIngredients")
     savedIngredients=[];
     localStorage.removeItem("drinkIngredients");
 
+    // Inköpshistoriken behålls även om barskåpet återställs.
     updateResults();
   });
 
@@ -753,23 +1037,26 @@ document.getElementById("resetIngredients")
 document.getElementById("surprise")
   .addEventListener("click",()=>{
     document.querySelectorAll(".drink.highlight")
-      .forEach(d=>d.classList.remove("highlight","open"));
+      .forEach(d=>d.classList.remove("highlight"));
 
     const cards=Array.from(resultsDiv.children)
       .filter(d=>d.classList.contains("drink"));
 
     if(!cards.length)return;
 
-    const pick=cards[
-      Math.floor(Math.random()*cards.length)
-    ];
+    const pick=cards[Math.floor(Math.random()*cards.length)];
 
-    pick.classList.add("highlight","open");
+    openDrinkName=pick.querySelector("strong").textContent;
+    updateResults();
 
-    pick.scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
+    const opened=Array.from(resultsDiv.children)
+      .find(d=>d.classList.contains("drink")&&
+        d.querySelector("strong").textContent===openDrinkName);
+
+    if(opened){
+      opened.classList.add("highlight","open");
+      opened.scrollIntoView({behavior:"smooth",block:"center"});
+    }
   });
 
 // STARTA APPEN
