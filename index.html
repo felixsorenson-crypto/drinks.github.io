@@ -9,9 +9,7 @@
 <style>
 * { box-sizing:border-box; }
 
-html {
-  scroll-behavior:auto;
-}
+html { scroll-behavior:auto; }
 
 body {
   font-family:system-ui,sans-serif;
@@ -25,7 +23,6 @@ body {
 
 h1 { text-align:center; }
 h2 { margin-top:1.6rem; }
-
 button { font:inherit; cursor:pointer; }
 
 details.section {
@@ -43,9 +40,7 @@ details.section > summary {
   list-style:none;
 }
 
-details.section > summary::-webkit-details-marker {
-  display:none;
-}
+details.section > summary::-webkit-details-marker { display:none; }
 
 details.section > summary::after {
   content:"＋";
@@ -53,9 +48,7 @@ details.section > summary::after {
   color:#777;
 }
 
-details.section[open] > summary::after {
-  content:"−";
-}
+details.section[open] > summary::after { content:"−"; }
 
 /* BARSKÅP – EN KOLUMN */
 
@@ -84,9 +77,7 @@ details.section[open] > summary::after {
   font-size:.95rem;
 }
 
-.category summary::-webkit-details-marker {
-  display:none;
-}
+.category summary::-webkit-details-marker { display:none; }
 
 .category summary::after {
   content:"＋";
@@ -94,9 +85,7 @@ details.section[open] > summary::after {
   flex-shrink:0;
 }
 
-.category[open] summary::after {
-  content:"−";
-}
+.category[open] summary::after { content:"−"; }
 
 .category label {
   display:block;
@@ -131,9 +120,7 @@ details.section[open] > summary::after {
   display:none;
 }
 
-.drink.open .details {
-  display:block;
-}
+.drink.open .details { display:block; }
 
 .drink-header {
   display:flex;
@@ -154,9 +141,7 @@ details.section[open] > summary::after {
   padding:0 .25rem;
 }
 
-.favorite-btn.active {
-  color:#e0a000;
-}
+.favorite-btn.active { color:#e0a000; }
 
 .action-btn {
   border:1px solid #c9c9c9;
@@ -266,9 +251,7 @@ details.section[open] > summary::after {
 
 /* INKÖPSLISTA */
 
-.shopping-panel {
-  margin-top:1rem;
-}
+.shopping-panel { margin-top:1rem; }
 
 .shopping-row {
   display:flex;
@@ -296,9 +279,7 @@ details.section[open] > summary::after {
   color:#999;
 }
 
-.shopping-row.done {
-  opacity:.75;
-}
+.shopping-row.done { opacity:.75; }
 
 .shopping-heading {
   margin-top:1.2rem;
@@ -325,9 +306,7 @@ details.section[open] > summary::after {
   gap:.5rem;
 }
 
-.shopping-recipe summary::-webkit-details-marker {
-  display:none;
-}
+.shopping-recipe summary::-webkit-details-marker { display:none; }
 
 .shopping-recipe summary::after {
   content:"＋";
@@ -335,26 +314,16 @@ details.section[open] > summary::after {
   flex-shrink:0;
 }
 
-.shopping-recipe[open] summary::after {
-  content:"−";
-}
+.shopping-recipe[open] summary::after { content:"−"; }
 
 .shopping-recipe-content {
   padding:0 .8rem .7rem;
   font-size:.92rem;
 }
 
-.shopping-recipe-content ul {
-  padding-left:1.3rem;
-}
-
-.shopping-recipe-content li {
-  margin:.3rem 0;
-}
-
-.shopping-recipe-content p {
-  margin-bottom:.3rem;
-}
+.shopping-recipe-content ul { padding-left:1.3rem; }
+.shopping-recipe-content li { margin:.3rem 0; }
+.shopping-recipe-content p { margin-bottom:.3rem; }
 
 .muted {
   color:#666;
@@ -391,17 +360,18 @@ details.section[open] > summary::after {
   <div id="favorites"></div>
 </details>
 
-<details class="section" id="shoppingSection" open>
-  <summary>🛒 Min inköpslista</summary>
-  <div id="shoppingPanel" class="shopping-panel"></div>
-</details>
-
+<!-- BARSKÅPET LIGGER NU FÖRE INKÖPSLISTAN -->
 <details class="section" id="barSection">
   <summary>🥃 Mitt barskåp</summary>
   <div id="ingredients"></div>
   <button class="action-btn" id="resetIngredients">
     ↻ Återställ barskåp
   </button>
+</details>
+
+<details class="section" id="shoppingSection" open>
+  <summary>🛒 Min inköpslista</summary>
+  <div id="shoppingPanel" class="shopping-panel"></div>
 </details>
 
 <h2>Vad är jag sugen på?</h2>
@@ -563,12 +533,6 @@ const profileOptions = [
 {name:"Krämigt",emoji:"🥛"}
 ];
 
-/*
-  Egen sorteringsordning.
-  Det här skapar inga drinkkategorier i gränssnittet.
-  Det styr bara i vilken ordning drinkarna visas när
-  de har samma tillgänglighetsranking.
-*/
 const drinkOrder = [
 "Gin & Tonic",
 "Mojito",
@@ -626,7 +590,6 @@ let savedIngredients=JSON.parse(localStorage.getItem("drinkIngredients")||"[]");
 let selectedProfiles=[];
 let mode="make";
 let shoppingDrinks=JSON.parse(localStorage.getItem("drinkShoppingDrinks")||"[]");
-
 let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")||"[]");
 let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
 
@@ -730,6 +693,80 @@ function setBarIngredient(item,checked){
   saveIngredients();
 }
 
+// FAVORITER – UPPDATERA UTAN ATT BYGGA OM DRINKRESULTATEN
+
+function renderFavorites(){
+  favoritesDiv.innerHTML="";
+
+  const selected=selectedIngredients();
+
+  const favs=drinks
+    .filter(d=>favorites.includes(d.name))
+    .sort((a,b)=>
+      (drinkOrderIndex.get(a.name)??999)-
+      (drinkOrderIndex.get(b.name)??999)
+    );
+
+  document.querySelector("#favoritesSection summary").textContent=
+    `⭐ Mina favoriter (${favs.length})`;
+
+  if(!favs.length){
+    favoritesDiv.innerHTML=`
+      <p class="muted">
+        Du har inga favoriter ännu.
+        Tryck på ☆ vid en drink för att spara den.
+      </p>
+    `;
+  }else{
+    favs.forEach(d=>
+      favoritesDiv.appendChild(createDrinkCard(d,selected))
+    );
+  }
+}
+
+function toggleFavorite(drinkName){
+  const isFavorite=favorites.includes(drinkName);
+
+  // Använd ett kort i resultatlistan som stabil referens.
+  // Det kortet byggs inte om när favoriterna ändras.
+  const anchor=Array.from(resultsDiv.querySelectorAll(".drink"))
+    .find(card=>card.dataset.drink===drinkName)
+    ||resultsDiv.querySelector(".drink")
+    ||document.getElementById("resultsHeading");
+
+  const oldTop=anchor?.getBoundingClientRect().top ?? null;
+
+  favorites=isFavorite
+    ?favorites.filter(n=>n!==drinkName)
+    :[...favorites,drinkName];
+
+  saveFavorites();
+
+  // Bygg bara om favoritsektionen.
+  renderFavorites();
+
+  // Uppdatera stjärnorna i befintliga kort utan att ersätta dem.
+  document.querySelectorAll(".favorite-btn").forEach(btn=>{
+    const card=btn.closest(".drink");
+    const name=card?.dataset.drink;
+
+    if(!name)return;
+
+    const active=favorites.includes(name);
+    btn.classList.toggle("active",active);
+    btn.textContent=active?"★":"☆";
+    btn.title=active?"Ta bort favorit":"Spara favorit";
+  });
+
+  // Kompensera för att favoritsektionen ändrat höjd.
+  requestAnimationFrame(()=>{
+    if(anchor && oldTop!==null){
+      const newTop=anchor.getBoundingClientRect().top;
+      window.scrollBy(0,newTop-oldTop);
+    }
+  });
+}
+
 // INKÖPSLISTA
 
 function addDrinkToShopping(name){
@@ -782,7 +819,6 @@ function getShoppingItems(chosen){
 }
 
 function renderShoppingList(){
-  // Läs av öppna recept innan listan byggs om.
   shoppingPanel.querySelectorAll(".shopping-recipe").forEach(el=>{
     if(el.open){
       openShoppingRecipes.add(el.dataset.drink);
@@ -987,6 +1023,7 @@ function createDrinkCard(drink,selected){
 
   const card=document.createElement("div");
   card.className="drink "+status;
+  card.dataset.drink=drink.name;
 
   if(openDrinkName===drink.name){
     card.classList.add("open");
@@ -999,17 +1036,15 @@ function createDrinkCard(drink,selected){
   title.textContent=drink.name;
 
   const fav=document.createElement("button");
+  fav.type="button";
   fav.className="favorite-btn"+(isFavorite?" active":"");
   fav.textContent=isFavorite?"★":"☆";
-  fav.title="Spara favorit";
+  fav.title=isFavorite?"Ta bort favorit":"Spara favorit";
+  fav.setAttribute("aria-label",fav.title);
 
+  // Favoritändring bygger inte längre om resultatlistan.
   fav.addEventListener("click",()=>{
-    favorites=isFavorite
-      ?favorites.filter(n=>n!==drink.name)
-      :[...favorites,drink.name];
-
-    saveFavorites();
-    updateResults();
+    toggleFavorite(drink.name);
   });
 
   header.append(title,fav);
@@ -1085,40 +1120,13 @@ function createDrinkCard(drink,selected){
 // UPPDATERA RESULTAT
 
 function updateResults(){
-  // Spara positionen innan innehållet uppdateras.
-  const savedScrollY=window.scrollY;
-
   const selected=selectedIngredients();
   const term=searchInput.value.toLowerCase().trim();
 
   saveIngredients();
 
   // FAVORITER
-
-  favoritesDiv.innerHTML="";
-
-  const favs=drinks
-    .filter(d=>favorites.includes(d.name))
-    .sort((a,b)=>
-      (drinkOrderIndex.get(a.name)??999)-
-      (drinkOrderIndex.get(b.name)??999)
-    );
-
-  document.querySelector("#favoritesSection summary").textContent=
-    `⭐ Mina favoriter (${favs.length})`;
-
-  if(!favs.length){
-    favoritesDiv.innerHTML=`
-      <p class="muted">
-        Du har inga favoriter ännu.
-        Tryck på ☆ vid en drink för att spara den.
-      </p>
-    `;
-  }else{
-    favs.forEach(d=>
-      favoritesDiv.appendChild(createDrinkCard(d,selected))
-    );
-  }
+  renderFavorites();
 
   // DRINKFILTER
 
@@ -1180,11 +1188,6 @@ function updateResults(){
       :"🍹 Drinkförslag";
 
   renderShoppingList();
-
-  // Återställ scrollposition efter att webbläsaren räknat om layouten.
-  requestAnimationFrame(()=>{
-    window.scrollTo(0,savedScrollY);
-  });
 }
 
 // LÄGESVÄLJARE
@@ -1232,12 +1235,12 @@ document.getElementById("surprise")
 
     const pick=cards[Math.floor(Math.random()*cards.length)];
 
-    openDrinkName=pick.querySelector("strong").textContent;
+    openDrinkName=pick.dataset.drink;
     updateResults();
 
     const opened=Array.from(resultsDiv.children)
       .find(d=>d.classList.contains("drink")&&
-        d.querySelector("strong").textContent===openDrinkName);
+        d.dataset.drink===openDrinkName);
 
     if(opened){
       opened.classList.add("highlight","open");
