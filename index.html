@@ -9,6 +9,10 @@
 <style>
 * { box-sizing:border-box; }
 
+html {
+  scroll-behavior:auto;
+}
+
 body {
   font-family:system-ui,sans-serif;
   background:#fafafa;
@@ -53,23 +57,19 @@ details.section[open] > summary::after {
   content:"−";
 }
 
+/* BARSKÅP – EN KOLUMN */
+
 #ingredients {
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1rem;
+  grid-template-columns:1fr;
+  gap:.65rem;
   margin-top:1rem;
-}
-
-.left-column,.right-column {
-  display:grid;
-  align-content:start;
-  gap:.8rem;
 }
 
 .category {
   border:1px solid #eee;
   border-radius:9px;
-  padding:.6rem;
+  padding:.65rem;
   min-width:0;
 }
 
@@ -80,9 +80,8 @@ details.section[open] > summary::after {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:.3rem;
-  white-space:nowrap;
-  font-size:.9rem;
+  gap:.5rem;
+  font-size:.95rem;
 }
 
 .category summary::-webkit-details-marker {
@@ -93,7 +92,6 @@ details.section[open] > summary::after {
   content:"＋";
   color:#777;
   flex-shrink:0;
-  font-size:.9rem;
 }
 
 .category[open] summary::after {
@@ -103,8 +101,11 @@ details.section[open] > summary::after {
 .category label {
   display:block;
   cursor:pointer;
-  margin:.4rem 0;
+  margin:.55rem 0;
+  padding:.1rem 0;
 }
+
+/* DRINKAR */
 
 .drink {
   border:1px solid #ccc;
@@ -263,6 +264,8 @@ details.section[open] > summary::after {
   margin-top:.65rem;
 }
 
+/* INKÖPSLISTA */
+
 .shopping-panel {
   margin-top:1rem;
 }
@@ -302,6 +305,57 @@ details.section[open] > summary::after {
   margin-bottom:.3rem;
 }
 
+/* RECEPT I INKÖPSLISTAN */
+
+.shopping-recipe {
+  border:1px solid #e5e5e5;
+  border-radius:9px;
+  margin:.5rem 0;
+  background:#fff;
+}
+
+.shopping-recipe summary {
+  cursor:pointer;
+  padding:.75rem;
+  font-weight:650;
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.5rem;
+}
+
+.shopping-recipe summary::-webkit-details-marker {
+  display:none;
+}
+
+.shopping-recipe summary::after {
+  content:"＋";
+  color:#777;
+  flex-shrink:0;
+}
+
+.shopping-recipe[open] summary::after {
+  content:"−";
+}
+
+.shopping-recipe-content {
+  padding:0 .8rem .7rem;
+  font-size:.92rem;
+}
+
+.shopping-recipe-content ul {
+  padding-left:1.3rem;
+}
+
+.shopping-recipe-content li {
+  margin:.3rem 0;
+}
+
+.shopping-recipe-content p {
+  margin-bottom:.3rem;
+}
+
 .muted {
   color:#666;
   font-size:.9rem;
@@ -321,9 +375,7 @@ details.section[open] > summary::after {
 
 @media(max-width:600px) {
   body { padding:.8rem; }
-  #ingredients { gap:.7rem; }
-  .category { padding:.5rem; }
-  .category summary { font-size:.85rem; }
+  .category { padding:.6rem; }
   .shopping-row .qty { max-width:42%; }
 }
 </style>
@@ -382,27 +434,27 @@ href="mailto:drinkar.cocktails@gmail.com?subject=Support">
 
 const categories = {
 "Alkohol":[
-"Vodka","Gin","Ljus Rom","Mörk Rom","Whisky",
-"Tequila","Cointreau","Amaretto","Kahlua",
-"Mousserande Vin","Campari","Aperol",
-"Peach Schnapps","Baileys","Cognac","Cachaca",
-"Dry Vermouth","Sweet Vermouth","Chambord"
+"Vodka","Gin","Tequila","Ljus Rom","Mörk Rom","Whisky",
+"Cognac","Cachaca",
+"Cointreau","Amaretto","Kahlua","Campari","Aperol",
+"Peach Schnapps","Baileys","Chambord",
+"Dry Vermouth","Sweet Vermouth","Mousserande Vin"
 ],
 "Juice":[
-"Apelsinjuice","Ananasjuice","Tranbärsjuice",
-"Grapefruktjuice","Limejuice","Citronjuice"
+"Limejuice","Citronjuice","Apelsinjuice",
+"Ananasjuice","Tranbärsjuice","Grapefruktjuice"
 ],
-"Frukt / Garnering":[
-"Limeklyfta","Apelsinskiva","Körsbär",
-"Mynta","Citronklyfta","Oliv"
+"Frukt":[
+"Limeklyfta","Citronklyfta","Apelsinskiva",
+"Mynta","Körsbär","Oliv"
 ],
 "Sötning":[
 "Sockerlag","Grenadin","Farinsocker"
 ],
-"Övrigt":[
+"Mixer & övrigt":[
 "Sodavatten","Tonic","Cola","Ginger Beer",
-"Angostura","Kaffe","Mjölk","Grädde",
-"Äggvita","Salt","Espresso"
+"Kaffe","Espresso","Mjölk","Grädde",
+"Äggvita","Angostura","Salt"
 ]
 };
 
@@ -511,6 +563,55 @@ const profileOptions = [
 {name:"Krämigt",emoji:"🥛"}
 ];
 
+/*
+  Egen sorteringsordning.
+  Det här skapar inga drinkkategorier i gränssnittet.
+  Det styr bara i vilken ordning drinkarna visas när
+  de har samma tillgänglighetsranking.
+*/
+const drinkOrder = [
+"Gin & Tonic",
+"Mojito",
+"Moscow Mule",
+"Cuba Libre",
+"Dark & Stormy",
+"Tom Collins",
+"Screwdriver",
+"Seabreeze",
+"Sex on the Beach",
+"Tequila Sunrise",
+"Aperol Spritz",
+"Mimosa",
+"Daiquiri",
+"Margarita",
+"Cosmopolitan",
+"Kamikaze",
+"White Lady",
+"Whiskey Sour",
+"Amaretto Sour",
+"Sidecar",
+"Lynchburg Lemonade",
+"French Martini",
+"Dry Martini",
+"Manhattan",
+"Rob Roy",
+"Negroni",
+"Old Fashioned",
+"Long Island Iced Tea",
+"Batanga",
+"Caipirinha",
+"Black Russian",
+"White Russian",
+"Screaming Orgasm",
+"B-52",
+"Espresso Martini",
+"Irish Coffee"
+];
+
+const drinkOrderIndex = new Map(
+  drinkOrder.map((name,index)=>[name,index])
+);
+
 const ingredientsDiv=document.getElementById("ingredients");
 const resultsDiv=document.getElementById("results");
 const favoritesDiv=document.getElementById("favorites");
@@ -530,6 +631,7 @@ let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")|
 let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
 
 let openDrinkName=null;
+let openShoppingRecipes=new Set();
 
 function selectedIngredients(){
   return Array.from(
@@ -561,14 +663,6 @@ function esc(s){
 
 // BARSKÅP
 
-const leftColumn=document.createElement("div");
-leftColumn.className="left-column";
-
-const rightColumn=document.createElement("div");
-rightColumn.className="right-column";
-
-ingredientsDiv.append(leftColumn,rightColumn);
-
 Object.entries(categories).forEach(([cat,items])=>{
   const category=document.createElement("details");
   category.className="category";
@@ -595,8 +689,7 @@ Object.entries(categories).forEach(([cat,items])=>{
     category.appendChild(label);
   });
 
-  (cat==="Alkohol"||cat==="Frukt / Garnering"
-    ?leftColumn:rightColumn).appendChild(category);
+  ingredientsDiv.appendChild(category);
 });
 
 // SMAKPROFILER
@@ -677,7 +770,6 @@ function getShoppingItems(chosen){
     });
   });
 
-  // En ingrediens är bara valfri om den inte behövs i något recept.
   chosen.forEach(d=>{
     d.recipe.forEach(([item])=>{
       if(needed.has(item)){
@@ -690,6 +782,15 @@ function getShoppingItems(chosen){
 }
 
 function renderShoppingList(){
+  // Läs av öppna recept innan listan byggs om.
+  shoppingPanel.querySelectorAll(".shopping-recipe").forEach(el=>{
+    if(el.open){
+      openShoppingRecipes.add(el.dataset.drink);
+    }else{
+      openShoppingRecipes.delete(el.dataset.drink);
+    }
+  });
+
   const selected=selectedIngredients();
 
   const chosen=drinks.filter(d=>shoppingDrinks.includes(d.name));
@@ -714,6 +815,30 @@ function renderShoppingList(){
     `;
     return;
   }
+
+  const recipesHtml=chosen.map(d=>{
+    const recipeItems=d.recipe.map(([item,amount])=>`
+      <li>${esc(amount)} ${esc(item)}</li>
+    `).join("");
+
+    const garnishes=(garnishesByDrink[d.name]||[]).map(item=>`
+      <li>${esc(item)} <small class="muted">(valfri garnering)</small></li>
+    `).join("");
+
+    return `
+      <details class="shopping-recipe"
+        data-drink="${esc(d.name)}"
+        ${openShoppingRecipes.has(d.name)?"open":""}>
+        <summary>${esc(d.name)}</summary>
+        <div class="shopping-recipe-content">
+          <strong>Ingredienser</strong>
+          <ul>${recipeItems}${garnishes}</ul>
+          <strong>Gör så här</strong>
+          <p><em>${esc(d.steps)}</em></p>
+        </div>
+      </details>
+    `;
+  }).join("");
 
   shoppingPanel.innerHTML=`
     <p class="muted">
@@ -774,9 +899,20 @@ function renderShoppingList(){
       rekommenderade flaskstorlekar.
     </p>
 
-    <h4>Valda drinkar</h4>
-    <p>${chosen.map(d=>esc(d.name)).join(" · ")}</p>
+    <h4>🍹 Recept för dina valda drinkar</h4>
+    ${recipesHtml}
   `;
+
+  shoppingPanel.querySelectorAll(".shopping-recipe")
+    .forEach(el=>{
+      el.addEventListener("toggle",()=>{
+        if(el.open){
+          openShoppingRecipes.add(el.dataset.drink);
+        }else{
+          openShoppingRecipes.delete(el.dataset.drink);
+        }
+      });
+    });
 
   shoppingPanel.querySelectorAll("[data-shop-item]")
     .forEach(cb=>{
@@ -829,6 +965,7 @@ function renderShoppingList(){
       shoppingDrinks=[];
       purchasedShopping=[];
       autoAddedShopping=[];
+      openShoppingRecipes.clear();
       saveShopping();
       updateResults();
     });
@@ -948,6 +1085,9 @@ function createDrinkCard(drink,selected){
 // UPPDATERA RESULTAT
 
 function updateResults(){
+  // Spara positionen innan innehållet uppdateras.
+  const savedScrollY=window.scrollY;
+
   const selected=selectedIngredients();
   const term=searchInput.value.toLowerCase().trim();
 
@@ -957,7 +1097,12 @@ function updateResults(){
 
   favoritesDiv.innerHTML="";
 
-  const favs=drinks.filter(d=>favorites.includes(d.name));
+  const favs=drinks
+    .filter(d=>favorites.includes(d.name))
+    .sort((a,b)=>
+      (drinkOrderIndex.get(a.name)??999)-
+      (drinkOrderIndex.get(b.name)??999)
+    );
 
   document.querySelector("#favoritesSection summary").textContent=
     `⭐ Mina favoriter (${favs.length})`;
@@ -1012,7 +1157,9 @@ function updateResults(){
 
   ranked.sort((a,b)=>
     Number(b.possible)-Number(a.possible)||
-    b.count-a.count
+    b.count-a.count||
+    (drinkOrderIndex.get(a.drink.name)??999)-
+    (drinkOrderIndex.get(b.drink.name)??999)
   );
 
   resultsDiv.innerHTML="";
@@ -1033,6 +1180,11 @@ function updateResults(){
       :"🍹 Drinkförslag";
 
   renderShoppingList();
+
+  // Återställ scrollposition efter att webbläsaren räknat om layouten.
+  requestAnimationFrame(()=>{
+    window.scrollTo(0,savedScrollY);
+  });
 }
 
 // LÄGESVÄLJARE
