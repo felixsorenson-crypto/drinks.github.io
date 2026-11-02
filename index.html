@@ -9,9 +9,6 @@
 <style>
 * { box-sizing:border-box; }
 html { scroll-behavior:auto; }
-html {
-  overflow-anchor: none;
-}
 
 
 body {
@@ -559,7 +556,7 @@ let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")|
 let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
 
 // Endast ett drinkkort kan vara öppet åt gången.
-let openDrinkName=null;
+let openDrinkKey=null;
 
 let openShoppingRecipes=new Set();
 
@@ -594,16 +591,14 @@ function esc(s){
 }
 
 function restoreFocusAndScroll(scrollY,selector){
-  requestAnimationFrame(()=>{
-    if(selector){
+  // Ingen automatisk scrollning.
+  // Fokus återställs bara om en specifik kontroll efterfrågas.
+  if(selector){
+    requestAnimationFrame(()=>{
       const target=document.querySelector(selector);
-      if(target){
-        target.focus({preventScroll:true});
-      }
-    }
-
-    window.scrollTo(0,scrollY);
-  });
+      if(target) target.focus({preventScroll:true});
+    });
+  }
 }
 
 /* BARSKÅP */
@@ -742,14 +737,7 @@ function toggleFavorite(drinkName){
     btn.setAttribute("aria-label",btn.title);
   });
 
-  requestAnimationFrame(()=>{
-    if(anchor && oldTop!==null){
-      const newTop=anchor.getBoundingClientRect().top;
-      window.scrollBy(0,newTop-oldTop);
-    }else{
-      window.scrollTo(0,scrollY);
-    }
-  });
+  
 }
 
 /* INKÖPSLISTA */
@@ -1071,7 +1059,9 @@ function createDrinkCard(drink,selected,context="results"){
   card.className="drink "+status;
   card.dataset.drink=drink.name;
 
-  const isOpen=openDrinkName===drink.name;
+  const cardKey=context+"|"+drink.name;
+card.dataset.cardKey=cardKey;
+const isOpen=openDrinkKey===cardKey;
   
   if(isOpen){
     card.classList.add("open");
@@ -1159,10 +1149,13 @@ function createDrinkCard(drink,selected,context="results"){
   // Favoriter och resultat har separata öppningslägen.
   // Ett öppet kort globalt, även mellan favoriter och resultat.
 title.addEventListener("click",()=>{
-  openDrinkName=openDrinkName===drink.name?null:drink.name;
+  openDrinkKey=openDrinkKey===cardKey?null:cardKey;
 
   document.querySelectorAll(".drink").forEach(other=>{
-    other.classList.toggle("open",other.dataset.drink===openDrinkName);
+    other.classList.toggle(
+      "open",
+      other.dataset.cardKey===openDrinkKey
+    );
   });
 });
 
@@ -1309,7 +1302,7 @@ document.getElementById("surprise")
 
     const pick=cards[Math.floor(Math.random()*cards.length)];
 
-    openDrinkName=pick.dataset.drink;
+    openDrinkKey="results|"+pick.dataset.drink;
     updateResults();
 
     const opened=Array.from(resultsDiv.children)
