@@ -141,6 +141,53 @@ details.section[open] > summary::after { content:"−"; }
 
 .favorite-btn.active { color:#e0a000; }
 
+/* BETYG OCH MINA DRINKAR */
+
+.rating-panel {
+  margin:1rem 0 .7rem;
+  padding:.75rem;
+  background:#f7f7f7;
+  border:1px solid #e7e7e7;
+  border-radius:10px;
+}
+
+.rating-stars {
+  display:flex;
+  gap:.2rem;
+  margin:.35rem 0;
+}
+
+.rating-star {
+  border:0;
+  background:transparent;
+  color:#c8c8c8;
+  font-size:1.8rem;
+  line-height:1.2;
+  padding:0 .12rem;
+}
+
+.rating-star.active {
+  color:#e0a000;
+}
+
+.my-drinks-stats {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.6rem;
+  margin:.8rem 0;
+}
+
+.my-drinks-stat {
+  background:#f5f5f5;
+  border-radius:9px;
+  padding:.7rem;
+}
+
+.my-drinks-stat strong {
+  display:block;
+  font-size:1.35rem;
+}
+
 .action-btn {
   border:1px solid #c9c9c9;
   border-radius:9px;
@@ -356,9 +403,17 @@ details.section[open] > summary::after { content:"−"; }
 <details class="section" id="favoritesSection" open>
   <summary>⭐ Mina favoriter</summary>
   <div id="favorites"></div>
+  
+</details>
+
+<details class="section" id="myDrinksSection">
+  <summary>⭐ Mina drinkar</summary>
+  <div id="myDrinks"></div>
 </details>
 
 <details class="section" id="barSection">
+  
+  
   <summary>🥃 Mitt barskåp</summary>
   <div id="ingredients"></div>
   <button class="action-btn" id="resetIngredients">
@@ -482,6 +537,7 @@ const profileOptions = [
 const ingredientsDiv=document.getElementById("ingredients");
 const resultsDiv=document.getElementById("results");
 const favoritesDiv=document.getElementById("favorites");
+const myDrinksDiv=document.getElementById("myDrinks");
 const profilesDiv=document.getElementById("profiles");
 const searchInput=document.getElementById("search");
 const shoppingPanel=document.getElementById("shoppingPanel");
@@ -489,6 +545,7 @@ const makeModeBtn=document.getElementById("makeMode");
 const shopModeBtn=document.getElementById("shopMode");
 
 let favorites=JSON.parse(localStorage.getItem("drinkFavorites")||"[]");
+let ratings=JSON.parse(localStorage.getItem("drinkRatingsV1")||"{}");
 let savedIngredients=JSON.parse(localStorage.getItem("drinkIngredients")||"[]");
 let selectedProfiles=[];
 let mode="make";
@@ -514,6 +571,62 @@ function saveIngredients(){
 
 function saveFavorites(){
   localStorage.setItem("drinkFavorites",JSON.stringify(favorites));
+}
+
+function saveRatings(){
+  localStorage.setItem("drinkRatingsV1",JSON.stringify(ratings));
+}
+
+function renderMyDrinks(){
+  const rated=drinks
+    .filter(d=>
+      Number.isInteger(ratings[d.name]) &&
+      ratings[d.name]>=1 &&
+      ratings[d.name]<=5
+    )
+    .sort((a,b)=>
+      ratings[b.name]-ratings[a.name] ||
+      a.name.localeCompare(b.name,"sv")
+    );
+
+  document.querySelector("#myDrinksSection summary").textContent=
+    `⭐ Mina drinkar (${rated.length})`;
+
+  if(!rated.length){
+    myDrinksDiv.innerHTML=`
+      <p class="muted">
+        Dina betygsatta drinkar visas här.
+        Öppna ett drinkkort och ge det 1–5 stjärnor.
+      </p>
+    `;
+    return;
+  }
+
+  const average=
+    rated.reduce((sum,d)=>sum+ratings[d.name],0)/rated.length;
+
+  myDrinksDiv.innerHTML=`
+    <div class="my-drinks-stats">
+      <div class="my-drinks-stat">
+        <strong>${average.toFixed(1).replace(".",",")} ★</strong>
+        <span class="muted">Snittbetyg</span>
+      </div>
+
+      <div class="my-drinks-stat">
+        <strong>${rated.length}</strong>
+        <span class="muted">Betygsatta drinkar</span>
+      </div>
+    </div>
+
+    <div id="myDrinksList"></div>
+  `;
+
+  const list=myDrinksDiv.querySelector("#myDrinksList");
+  const selected=selectedIngredients();
+
+  rated.forEach(d=>{
+    list.appendChild(createDrinkCard(d,selected,"mydrinks"));
+  });
 }
 
 function saveShopping(){
@@ -1043,9 +1156,58 @@ function createDrinkCard(drink,selected,context="results"){
     `).join("");
 
   const profile=(drink.profiles||[]).join(" · ");
+const rating=ratings[drink.name]||0;
 
-  details.innerHTML=`
+details.innerHTML=`
     <p><small>Smakprofil: ${esc(profile||"Ej angiven")}</small></p>
+
+    <div class="rating-panel">
+      <strong>Ditt betyg</strong>
+
+      <div class="rating-stars" role="group"
+        aria-label="Betygsätt ${esc(drink.name)}">
+
+        ${[1,2,3,4,5].map(value=>`
+          <button type="button"
+            class="rating-star ${value<=rating?"active":""}"
+            data-rating="${value}"
+            aria-label="${value} av 5 stjärnor"
+            aria-pressed="${value===rating}">
+            ★
+          </button>
+        `).join("")}
+
+      </div>
+
+      <small class="muted">
+        ${rating?rating+" av 5 stjärnor":"Inte betygsatt ännu"}
+      </small>
+
+      ${rating
+        ?'<button type="button" class="action-btn" data-clear-rating>Ta bort betyg</button>'
+        :""
+      }
+    </div>
+`;
+details.querySelectorAll("[data-rating]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    ratings[drink.name]=Number(btn.dataset.rating);
+    saveRatings();
+    updateResults();
+  });
+});
+
+const clearRating=details.querySelector("[data-clear-rating]");
+
+if(clearRating){
+  clearRating.addEventListener("click",()=>{
+    delete ratings[drink.name];
+    saveRatings();
+    updateResults();
+  });
+}
+
+    
     <h4>Recept</h4>
 
     ${missing.length
@@ -1120,9 +1282,10 @@ function updateResults({restorePosition=true}={}){
   const term=searchInput.value.toLowerCase().trim();
 
   saveIngredients();
-  renderFavorites();
+renderFavorites();
+renderMyDrinks();
 
-  const filtered=drinks.filter(d=>{
+const filtered=drinks.filter(d=>{
     const matchesSearch=
       !term||
       d.name.toLowerCase().includes(term)||
