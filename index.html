@@ -8,8 +8,11 @@
 
 <style>
 * { box-sizing:border-box; }
-html { scroll-behavior:auto; }
 
+html {
+  scroll-behavior:auto;
+  overflow-anchor:none;
+}
 
 body {
   font-family:system-ui,sans-serif;
@@ -180,9 +183,11 @@ details.section[open] > summary::after { content:"−"; }
   border-color:#173f67;
 }
 
+/* SMAKPROFILER */
+
 #profiles {
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:.55rem;
   margin:.7rem 0 1rem;
 }
@@ -477,18 +482,18 @@ const garnishesByDrink = {
 
 const drinkProfiles = {
 "Gin & Tonic":["Fräscht","Bubbligt"],
-"Screwdriver":["Sött"],
+"Screwdriver":["Sött","Fruktigt"],
 "Cuba Libre":["Sött","Bubbligt"],
-"Tequila Sunrise":["Sött"],
-"Black Russian":["Starkt"],
-"White Russian":["Krämigt"],
+"Tequila Sunrise":["Sött","Fruktigt"],
+"Black Russian":["Starkt","Kaffe"],
+"White Russian":["Krämigt","Kaffe"],
 "Moscow Mule":["Fräscht","Bubbligt"],
-"Seabreeze":["Surt","Fräscht"],
-"Screaming Orgasm":["Sött","Krämigt"],
-"Sex on the Beach":["Sött","Fräscht"],
+"Seabreeze":["Surt","Fräscht","Fruktigt"],
+"Screaming Orgasm":["Sött","Krämigt","Kaffe"],
+"Sex on the Beach":["Sött","Fräscht","Fruktigt"],
 "Cosmopolitan":["Surt","Fräscht"],
 "Daiquiri":["Surt","Starkt"],
-"French Martini":["Sött"],
+"French Martini":["Sött","Fruktigt"],
 "Lynchburg Lemonade":["Sött","Surt","Fräscht"],
 "Tom Collins":["Surt","Fräscht","Bubbligt"],
 "Long Island Iced Tea":["Starkt","Surt"],
@@ -502,16 +507,16 @@ const drinkProfiles = {
 "Whiskey Sour":["Surt","Starkt"],
 "Mojito":["Sött","Surt","Fräscht","Bubbligt"],
 "Caipirinha":["Sött","Surt","Starkt"],
-"B-52":["Sött","Starkt"],
+"B-52":["Sött","Starkt","Kaffe"],
 "Old Fashioned":["Starkt"],
 "Dark & Stormy":["Starkt","Bubbligt"],
 "White Lady":["Surt","Starkt"],
 "Negroni":["Starkt"],
 "Aperol Spritz":["Sött","Bubbligt","Fräscht"],
-"Mimosa":["Sött","Bubbligt"],
-"Espresso Martini":["Sött","Starkt"],
+"Mimosa":["Sött","Bubbligt","Fruktigt"],
+"Espresso Martini":["Sött","Starkt","Kaffe"],
 "Kamikaze":["Surt","Starkt"],
-"Irish Coffee":["Sött","Krämigt"]
+"Irish Coffee":["Sött","Krämigt","Kaffe"]
 };
 
 const profileOptions = [
@@ -520,7 +525,9 @@ const profileOptions = [
 {name:"Starkt",emoji:"🥃"},
 {name:"Fräscht",emoji:"🌿"},
 {name:"Bubbligt",emoji:"🫧"},
-{name:"Krämigt",emoji:"🥛"}
+{name:"Krämigt",emoji:"🥛"},
+{name:"Kaffe",emoji:"☕"},
+{name:"Fruktigt",emoji:"🍍"}
 ];
 
 const drinkOrder = [
@@ -555,9 +562,7 @@ let shoppingDrinks=JSON.parse(localStorage.getItem("drinkShoppingDrinks")||"[]")
 let purchasedShopping=JSON.parse(localStorage.getItem("drinkPurchasedShopping")||"[]");
 let autoAddedShopping=JSON.parse(localStorage.getItem("drinkAutoAddedShopping")||"[]");
 
-// Endast ett drinkkort kan vara öppet åt gången.
 let openDrinkKey=null;
-
 let openShoppingRecipes=new Set();
 
 /* GEMENSAMMA HJÄLPFUNKTIONER */
@@ -591,8 +596,6 @@ function esc(s){
 }
 
 function restoreFocusAndScroll(scrollY,selector){
-  // Ingen automatisk scrollning.
-  // Fokus återställs bara om en specifik kontroll efterfrågas.
   if(selector){
     requestAnimationFrame(()=>{
       const target=document.querySelector(selector);
@@ -706,15 +709,19 @@ function renderFavorites(){
   }
 }
 
-function toggleFavorite(drinkName){
-  const scrollY=window.scrollY;
+function toggleFavorite(drinkName,sourceCard){
+  const fromFavorites=sourceCard?.closest("#favorites");
 
-  const anchor=Array.from(resultsDiv.querySelectorAll(".drink"))
-    .find(card=>card.dataset.drink===drinkName)
-    ||resultsDiv.querySelector(".drink")
-    ||document.getElementById("resultsHeading");
+  // Välj ett element som finns kvar efter omrenderingen.
+  let anchor=sourceCard;
 
-  const oldTop=anchor?.getBoundingClientRect().top ?? null;
+  if(fromFavorites){
+    anchor=sourceCard.nextElementSibling||
+      sourceCard.previousElementSibling||
+      document.querySelector("#favoritesSection summary");
+  }
+
+  const oldTop=anchor?.getBoundingClientRect().top??null;
 
   const isFavorite=favorites.includes(drinkName);
 
@@ -737,26 +744,34 @@ function toggleFavorite(drinkName){
     btn.setAttribute("aria-label",btn.title);
   });
 
-  
+  // Kompensera för att favoritsektionen kan ha ändrat höjd.
+  if(anchor&&oldTop!==null){
+    requestAnimationFrame(()=>{
+      if(anchor.isConnected){
+        window.scrollBy(
+          0,
+          anchor.getBoundingClientRect().top-oldTop
+        );
+      }
+    });
+  }
 }
 
 /* INKÖPSLISTA */
 
-/*
-  Bevara den synliga drinkens position när inköpslistan
-  byggs om. Det motverkar hopp när panelens höjd ändras.
-*/
 function renderShoppingListPreservingPosition(){
   const active=document.activeElement;
   const card=active?.closest?.(".drink");
-  const oldTop=card?.getBoundingClientRect().top ?? null;
+  const oldTop=card?.getBoundingClientRect().top??null;
 
   renderShoppingList();
 
-  if(card && oldTop!==null){
+  if(card&&oldTop!==null){
     requestAnimationFrame(()=>{
-      const newTop=card.getBoundingClientRect().top;
-      window.scrollBy(0,newTop-oldTop);
+      if(card.isConnected){
+        const newTop=card.getBoundingClientRect().top;
+        window.scrollBy(0,newTop-oldTop);
+      }
     });
   }
 }
@@ -836,7 +851,6 @@ function getShoppingItems(chosen){
 }
 
 function renderShoppingList(){
-  // Spara öppna recept innan panelen uppdateras.
   shoppingPanel.querySelectorAll(".shopping-recipe").forEach(el=>{
     if(el.open){
       openShoppingRecipes.add(el.dataset.drink);
@@ -845,7 +859,6 @@ function renderShoppingList(){
     }
   });
 
-  // Spara fokus om användaren ändrar en inköpsruta.
   const active=document.activeElement;
   const activeItem=active?.dataset?.shopItem;
   const wasShoppingCheckbox=active?.matches?.("[data-shop-item]");
@@ -963,7 +976,6 @@ function renderShoppingList(){
     ${recipesHtml}
   `;
 
-  // Receptens öppna/stängda läge hanteras separat.
   shoppingPanel.querySelectorAll(".shopping-recipe")
     .forEach(el=>{
       el.addEventListener("toggle",()=>{
@@ -975,7 +987,6 @@ function renderShoppingList(){
       });
     });
 
-  // Hantera inköpsrutorna.
   shoppingPanel.querySelectorAll("[data-shop-item]")
     .forEach(cb=>{
       cb.addEventListener("change",()=>{
@@ -1013,7 +1024,7 @@ function renderShoppingList(){
         ...activeItems.map(x=>"- "+x)
       ].join("\n");
 
-      if(navigator.clipboard && navigator.clipboard.writeText){
+      if(navigator.clipboard&&navigator.clipboard.writeText){
         navigator.clipboard.writeText(text)
           .then(()=>alert("Inköpslistan kopierades."))
           .catch(()=>alert(text));
@@ -1032,8 +1043,7 @@ function renderShoppingList(){
       updateResults();
     });
 
-  // Återskapa fokus och scroll endast vid ändring av inköpsruta.
-  if(wasShoppingCheckbox && activeItem){
+  if(wasShoppingCheckbox&&activeItem){
     restoreFocusAndScroll(
       scrollY,
       `[data-shop-item="${CSS.escape(activeItem)}"]`
@@ -1060,9 +1070,9 @@ function createDrinkCard(drink,selected,context="results"){
   card.dataset.drink=drink.name;
 
   const cardKey=context+"|"+drink.name;
-card.dataset.cardKey=cardKey;
-const isOpen=openDrinkKey===cardKey;
-  
+  card.dataset.cardKey=cardKey;
+  const isOpen=openDrinkKey===cardKey;
+
   if(isOpen){
     card.classList.add("open");
   }
@@ -1081,7 +1091,7 @@ const isOpen=openDrinkKey===cardKey;
   fav.setAttribute("aria-label",fav.title);
 
   fav.addEventListener("click",()=>{
-    toggleFavorite(drink.name);
+    toggleFavorite(drink.name,card);
   });
 
   header.append(title,fav);
@@ -1145,19 +1155,16 @@ const isOpen=openDrinkKey===cardKey;
     }
   });
 
-  // Öppna bara det kort som klickas.
-  // Favoriter och resultat har separata öppningslägen.
-  // Ett öppet kort globalt, även mellan favoriter och resultat.
-title.addEventListener("click",()=>{
-  openDrinkKey=openDrinkKey===cardKey?null:cardKey;
+  title.addEventListener("click",()=>{
+    openDrinkKey=openDrinkKey===cardKey?null:cardKey;
 
-  document.querySelectorAll(".drink").forEach(other=>{
-    other.classList.toggle(
-      "open",
-      other.dataset.cardKey===openDrinkKey
-    );
+    document.querySelectorAll(".drink").forEach(other=>{
+      other.classList.toggle(
+        "open",
+        other.dataset.cardKey===openDrinkKey
+      );
+    });
   });
-});
 
   card.appendChild(details);
   return card;
@@ -1165,12 +1172,20 @@ title.addEventListener("click",()=>{
 
 /* UPPDATERA RESULTAT */
 
-function updateResults(){
-  const scrollY=window.scrollY;
-
+function updateResults({restorePosition=true}={}){
   const active=document.activeElement;
+
+  // Spara positionen för en kontroll som kommer byggas om.
+  const activeShopItem=active?.matches?.("[data-shop-item]")
+    ?active.dataset.shopItem:null;
+
+  const shopItemTop=activeShopItem
+    ?active.getBoundingClientRect().top:null;
+
   const activeShoppingDrink=active?.dataset?.shoppingButton;
-  const restoreShoppingButton=active?.matches?.("[data-shopping-button]");
+
+  const shoppingButtonTop=activeShoppingDrink
+    ?active.getBoundingClientRect().top:null;
 
   const selected=selectedIngredients();
   const term=searchInput.value.toLowerCase().trim();
@@ -1237,19 +1252,36 @@ function updateResults(){
 
   renderShoppingList();
 
-  requestAnimationFrame(()=>{
-    if(restoreShoppingButton && activeShoppingDrink){
-      const selector=
-        `[data-shopping-button="${CSS.escape(activeShoppingDrink)}"]`;
-      const target=document.querySelector(selector);
+  // Återställ kontrollens position efter ombyggnaden.
+  if(restorePosition){
+    requestAnimationFrame(()=>{
+      let target=null;
+      let oldTop=null;
 
-      if(target){
-        target.focus({preventScroll:true});
+      if(activeShopItem){
+        target=Array.from(
+          document.querySelectorAll("[data-shop-item]")
+        ).find(el=>el.dataset.shopItem===activeShopItem);
+
+        oldTop=shopItemTop;
+      }else if(activeShoppingDrink){
+        target=document.querySelector(
+          `[data-shopping-button="${CSS.escape(activeShoppingDrink)}"]`
+        );
+
+        oldTop=shoppingButtonTop;
       }
-    }
 
-    window.scrollTo(0,scrollY);
-  });
+      if(target&&oldTop!==null){
+        target.focus({preventScroll:true});
+
+        window.scrollBy(
+          0,
+          target.getBoundingClientRect().top-oldTop
+        );
+      }
+    });
+  }
 }
 
 /* LÄGESVÄLJARE */
@@ -1276,8 +1308,6 @@ searchInput.addEventListener("input",updateResults);
 
 document.getElementById("resetIngredients")
   .addEventListener("click",()=>{
-    const scrollY=window.scrollY;
-
     document.querySelectorAll("#ingredients input")
       .forEach(cb=>cb.checked=false);
 
@@ -1285,8 +1315,7 @@ document.getElementById("resetIngredients")
     localStorage.removeItem("drinkIngredients");
 
     updateResults();
-    restoreFocusAndScroll(scrollY,null);
-});
+  });
 
 /* SURPRISE ME */
 
@@ -1301,18 +1330,30 @@ document.getElementById("surprise")
     if(!cards.length)return;
 
     const pick=cards[Math.floor(Math.random()*cards.length)];
+    const drinkName=pick.dataset.drink;
 
-    openDrinkKey="results|"+pick.dataset.drink;
-    updateResults();
+    // Spara vilken drink som ska öppnas.
+    openDrinkKey="results|"+drinkName;
 
-    const opened=Array.from(resultsDiv.children)
-      .find(d=>d.classList.contains("drink")&&
-        d.dataset.drink===pick.dataset.drink);
+    // Bygg om resultaten utan att återställa scrollpositionen.
+    updateResults({restorePosition:false});
 
-    if(opened){
-      opened.classList.add("highlight","open");
-      opened.scrollIntoView({behavior:"smooth",block:"center"});
-    }
+    requestAnimationFrame(()=>{
+      const opened=Array.from(resultsDiv.children)
+        .find(d=>
+          d.classList.contains("drink")&&
+          d.dataset.drink===drinkName
+        );
+
+      if(opened){
+        opened.classList.add("highlight","open");
+
+        opened.scrollIntoView({
+          behavior:"smooth",
+          block:"center"
+        });
+      }
+    });
 });
 
 /* STARTA APPEN */
