@@ -1259,60 +1259,6 @@ function createDrinkCard(drink,selected,context="results"){
 }
 
 
-    
-    <h4>Recept</h4>
-
-    ${missing.length
-      ?`<p class="missing-ingredient">
-          Saknas hemma: ${missing.map(esc).join(", ")}
-        </p>`
-      :`<p style="color:green;font-weight:bold">
-          Du har allt som behövs! 🎉
-        </p>`
-    }
-
-    <ul>${recipeItems}${garnishes}</ul>
-    <p><em>${esc(drink.steps)}</em></p>
-
-    <div class="drink-actions">
-      <button
-        class="action-btn ${inShopping?"selected":""}"
-        data-shopping-button="${esc(drink.name)}"
-        ${hasEverything&&!inShopping?"disabled":""}>
-        ${inShopping
-          ?"✓ Tillagd i inköpslistan"
-          :(hasEverything
-            ?"✓ Har allt"
-            :"🛒 + Inköpslista")}
-      </button>
-    </div>
-  `;
-
-  const shoppingButton=details.querySelector("[data-shopping-button]");
-
-  shoppingButton.addEventListener("click",()=>{
-    if(inShopping){
-      removeDrinkFromShopping(drink.name);
-    }else if(!hasEverything){
-      addDrinkToShopping(drink.name);
-    }
-  });
-
-  title.addEventListener("click",()=>{
-    openDrinkKey=openDrinkKey===cardKey?null:cardKey;
-
-    document.querySelectorAll(".drink").forEach(other=>{
-      other.classList.toggle(
-        "open",
-        other.dataset.cardKey===openDrinkKey
-      );
-    });
-  });
-
-  card.appendChild(details);
-  return card;
-}
-
 /* UPPDATERA RESULTAT */
 
 function updateResults({restorePosition=true}={}){
