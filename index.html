@@ -1095,6 +1095,7 @@ function renderShoppingList(){
 
 /* DRINKKORT */
 
+
 function createDrinkCard(drink,selected,context="results"){
   const base=drink.recipe.map(r=>r[0]);
   const missing=base.filter(x=>!selected.includes(x));
@@ -1113,9 +1114,8 @@ function createDrinkCard(drink,selected,context="results"){
 
   const cardKey=context+"|"+drink.name;
   card.dataset.cardKey=cardKey;
-  const isOpen=openDrinkKey===cardKey;
 
-  if(isOpen){
+  if(openDrinkKey===cardKey){
     card.classList.add("open");
   }
 
@@ -1156,9 +1156,9 @@ function createDrinkCard(drink,selected,context="results"){
     `).join("");
 
   const profile=(drink.profiles||[]).join(" · ");
-const rating=ratings[drink.name]||0;
+  const rating=ratings[drink.name]||0;
 
-details.innerHTML=`
+  details.innerHTML=`
     <p><small>Smakprofil: ${esc(profile||"Ej angiven")}</small></p>
 
     <div class="rating-panel">
@@ -1166,7 +1166,6 @@ details.innerHTML=`
 
       <div class="rating-stars" role="group"
         aria-label="Betygsätt ${esc(drink.name)}">
-
         ${[1,2,3,4,5].map(value=>`
           <button type="button"
             class="rating-star ${value<=rating?"active":""}"
@@ -1176,7 +1175,6 @@ details.innerHTML=`
             ★
           </button>
         `).join("")}
-
       </div>
 
       <small class="muted">
@@ -1188,24 +1186,78 @@ details.innerHTML=`
         :""
       }
     </div>
-`;
-details.querySelectorAll("[data-rating]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    ratings[drink.name]=Number(btn.dataset.rating);
-    saveRatings();
-    updateResults();
-  });
-});
 
-const clearRating=details.querySelector("[data-clear-rating]");
+    <h4>Recept</h4>
 
-if(clearRating){
-  clearRating.addEventListener("click",()=>{
-    delete ratings[drink.name];
-    saveRatings();
-    updateResults();
+    ${missing.length
+      ?`<p class="missing-ingredient">
+          Saknas hemma: ${missing.map(esc).join(", ")}
+        </p>`
+      :`<p style="color:green;font-weight:bold">
+          Du har allt som behövs! 🎉
+        </p>`
+    }
+
+    <ul>${recipeItems}${garnishes}</ul>
+    <p><em>${esc(drink.steps)}</em></p>
+
+    <div class="drink-actions">
+      <button
+        class="action-btn ${inShopping?"selected":""}"
+        data-shopping-button="${esc(drink.name)}"
+        ${hasEverything&&!inShopping?"disabled":""}>
+        ${inShopping
+          ?"✓ Tillagd i inköpslistan"
+          :(hasEverything
+            ?"✓ Har allt"
+            :"🛒 + Inköpslista")}
+      </button>
+    </div>
+  `;
+
+  details.querySelectorAll("[data-rating]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      ratings[drink.name]=Number(btn.dataset.rating);
+      saveRatings();
+      updateResults();
+    });
   });
+
+  const clearRating=details.querySelector("[data-clear-rating]");
+
+  if(clearRating){
+    clearRating.addEventListener("click",()=>{
+      delete ratings[drink.name];
+      saveRatings();
+      updateResults();
+    });
+  }
+
+  const shoppingButton=details.querySelector("[data-shopping-button]");
+
+  shoppingButton.addEventListener("click",()=>{
+    if(inShopping){
+      removeDrinkFromShopping(drink.name);
+    }else if(!hasEverything){
+      addDrinkToShopping(drink.name);
+    }
+  });
+
+  title.addEventListener("click",()=>{
+    openDrinkKey=openDrinkKey===cardKey?null:cardKey;
+
+    document.querySelectorAll(".drink").forEach(other=>{
+      other.classList.toggle(
+        "open",
+        other.dataset.cardKey===openDrinkKey
+      );
+    });
+  });
+
+  card.appendChild(details);
+  return card;
 }
+
 
     
     <h4>Recept</h4>
