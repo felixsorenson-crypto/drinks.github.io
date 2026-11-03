@@ -426,98 +426,44 @@ const categories = {
 // RECEPT
 
 const drinks = [
-{name:"Gin & Tonic",recipe:[["Gin","4 cl"],["Tonic","Toppa upp"]],steps:"Fyll glas med is, häll gin och toppa med tonic."},
-{name:"Screwdriver",recipe:[["Vodka","4 cl"],["Apelsinjuice","Toppa upp"]],steps:"Fyll glas med is, häll vodka och toppa med apelsinjuice."},
-{name:"Cuba Libre",recipe:[["Ljus Rom","4 cl"],["Limejuice","1 cl"],["Cola","Toppa upp"]],steps:"Fyll glas med is, häll rom och limejuice. Toppa med cola."},
-{name:"Tequila Sunrise",recipe:[["Tequila","4 cl"],["Apelsinjuice","Toppa upp"],["Grenadin","1 cl"]],steps:"Häll tequila och apelsinjuice i ett isfyllt glas. Tillsätt grenadin försiktigt."},
-{name:"Black Russian",recipe:[["Vodka","4 cl"],["Kahlua","2 cl"]],steps:"Fyll glas med is. Häll i vodka och Kahlua."},
-{name:"White Russian",recipe:[["Vodka","4 cl"],["Kahlua","2 cl"],["Grädde","Toppa upp"]],steps:"Fyll glas med is. Häll i vodka och Kahlua, toppa med grädde."},
-{name:"Moscow Mule",recipe:[["Vodka","4 cl"],["Limejuice","2 cl"],["Ginger Beer","Toppa upp"]],steps:"Fyll glas med is, häll i vodka och limejuice och toppa med ginger beer."},
-{name:"Seabreeze",recipe:[["Vodka","4 cl"],["Tranbärsjuice","6 cl"],["Grapefruktjuice","4 cl"]],steps:"Fyll glas med is och häll i samtliga ingredienser."},
-{name:"Screaming Orgasm",recipe:[["Vodka","1 cl"],["Kahlua","1 cl"],["Baileys","1 cl"],["Amaretto","1 cl"],["Mjölk","4 cl"]],steps:"Fyll glas med is, häll i ingredienserna och rör om."},
-{name:"Sex on the Beach",recipe:[["Vodka","2 cl"],["Peach Schnapps","2 cl"],["Tranbärsjuice","5 cl"],["Apelsinjuice","5 cl"]],steps:"Fyll glas med is. Häll i vodka och Peach Schnapps, följt av juicerna."},
-{name:"Cosmopolitan",recipe:[["Vodka","4 cl"],["Cointreau","2 cl"],["Tranbärsjuice","3 cl"],["Limejuice","1 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas."},
-{name:"Daiquiri",recipe:[["Ljus Rom","6 cl"],["Limejuice","3 cl"],["Sockerlag","2 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas."},
-{name:"French Martini",recipe:[["Vodka","4 cl"],["Chambord","2 cl"],["Ananasjuice","4 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas."},
-{name:"Lynchburg Lemonade",recipe:[["Whisky","4 cl"],["Cointreau","2 cl"],["Citronjuice","2 cl"],["Sockerlag","1 cl"],["Sodavatten","Toppa upp"]],steps:"Skaka whisky, Cointreau, citronjuice och sockerlag med is. Sila i glas med is och toppa med sodavatten."},
-{name:"Tom Collins",recipe:[["Gin","6 cl"],["Citronjuice","3 cl"],["Sockerlag","2 cl"],["Sodavatten","Toppa upp"]],steps:"Skaka gin, citronjuice och sockerlag med is. Sila i glas med is och toppa med sodavatten."},
-{name:"Long Island Iced Tea",recipe:[["Vodka","1.5 cl"],["Gin","1.5 cl"],["Ljus Rom","1.5 cl"],["Tequila","1.5 cl"],["Cointreau","1.5 cl"],["Citronjuice","2 cl"],["Sockerlag","1 cl"],["Cola","Toppa upp"]],steps:"Skaka spritsorterna, citronjuice och sockerlag med is. Sila i ett isfyllt glas och toppa med cola."},
-{name:"Dry Martini",recipe:[["Gin","6 cl"],["Dry Vermouth","1 cl"]],steps:"Rör gin och vermouth med is. Sila upp i ett kylt martiniglas."},
-{name:"Manhattan",recipe:[["Whisky","6 cl"],["Sweet Vermouth","2 cl"],["Angostura","2 dash"]],steps:"Rör ingredienserna med is och sila upp i ett kylt glas."},
-{name:"Rob Roy",recipe:[["Whisky","6 cl"],["Sweet Vermouth","2 cl"],["Angostura","2 dash"]],steps:"Rör ingredienserna med is och sila upp i ett kylt glas. Skotsk whisky är typisk."},
-{name:"Batanga",recipe:[["Tequila","4 cl"],["Limejuice","1 cl"],["Cola","Toppa upp"],["Salt","Till glaskanten"]],steps:"Doppa glaskanten i limejuice och sedan salt. Fyll glaset med is, häll i tequila och toppa med cola."},
-{name:"Margarita",recipe:[["Tequila","4 cl"],["Cointreau","2 cl"],["Limejuice","2 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas, gärna med saltad kant."},
-{name:"Sidecar",recipe:[["Cognac","5 cl"],["Cointreau","2 cl"],["Citronjuice","2 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas, gärna med sockrad kant."},
-{name:"Amaretto Sour",recipe:[["Amaretto","5 cl"],["Citronjuice","3 cl"],["Sockerlag","1.5 cl"],["Äggvita","1.5 cl"]],steps:"Torrskaka först utan is. Skaka sedan med is och sila upp över is."},
-{name:"Whiskey Sour",recipe:[["Whisky","6 cl"],["Citronjuice","3 cl"],["Sockerlag","1.5 cl"],["Äggvita","1.5 cl"]],steps:"Torrskaka först utan is. Skaka sedan med is och sila upp över is."},
-{name:"Mojito",recipe:[["Ljus Rom","6 cl"],["Limejuice","2 cl"],["Sockerlag","2 cl"],["Mynta","8–12 blad"],["Sodavatten","Toppa upp"]],steps:"Klappa myntan lätt. Blanda med limejuice och sockerlag, tillsätt rom och is. Toppa med sodavatten."},
-{name:"Caipirinha",recipe:[["Cachaca","6 cl"],["Farinsocker","2 tsk"],["Limeklyfta","6 st"]],steps:"Muddla limeklyftor med socker. Tillsätt is och cachaça och rör om."},
-{name:"B-52",recipe:[["Kahlua","2 cl"],["Baileys","2 cl"],["Cointreau","2 cl"]],steps:"Häll försiktigt ingredienserna i lager i ett shotglas."},
-{name:"Old Fashioned",recipe:[["Whisky","6 cl"],["Sockerlag","1.5 cl"],["Angostura","2 dash"]],steps:"Rör ingredienserna med is. Servera över en stor iskub."},
-{name:"Dark & Stormy",recipe:[["Mörk Rom","4 cl"],["Limejuice","1 cl"],["Ginger Beer","Toppa upp"]],steps:"Fyll glas med is, häll i limejuice och ginger beer. Toppa med mörk rom."},
-{name:"White Lady",recipe:[["Gin","4 cl"],["Cointreau","2 cl"],["Citronjuice","2 cl"],["Sockerlag","1 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas."},
-{name:"Negroni",recipe:[["Gin","3 cl"],["Sweet Vermouth","3 cl"],["Campari","3 cl"]],steps:"Rör drinken med is och servera över is."},
-{name:"Aperol Spritz",recipe:[["Aperol","6 cl"],["Mousserande Vin","9 cl"],["Sodavatten","3 cl"]],steps:"Fyll ett stort vinglas med is. Häll i Aperol och mousserande vin, toppa med sodavatten."},
-{name:"Mimosa",recipe:[["Mousserande Vin","6 cl"],["Apelsinjuice","6 cl"]],steps:"Häll lika delar mousserande vin och apelsinjuice i ett glas."},
-{name:"Espresso Martini",recipe:[["Vodka","4 cl"],["Kahlua","2 cl"],["Espresso","3 cl"],["Sockerlag","1 cl"]],steps:"Skaka ingredienserna kraftigt med is och dubbelsila i ett kylt martiniglas."},
-{name:"Kamikaze",recipe:[["Vodka","2 cl"],["Cointreau","1 cl"],["Limejuice","1 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt glas."},
-{name:"Irish Coffee",recipe:[["Whisky","4 cl"],["Kaffe","Toppa upp"],["Farinsocker","1 barsked"],["Grädde","Lättvispad"]],steps:"Lös upp farinsocker i varmt kaffe, tillsätt whisky och toppa med lättvispad grädde."}
+{name:"Gin & Tonic",recipe:[["Gin","4 cl"],["Tonic","Toppa upp"]],steps:"Fyll glas med is, häll gin och toppa med tonic.",garnishes:["Limeklyfta"],profiles:["Fräscht","Bubbligt"]},
+{name:"Screwdriver",recipe:[["Vodka","4 cl"],["Apelsinjuice","Toppa upp"]],steps:"Fyll glas med is, häll vodka och toppa med apelsinjuice.",profiles:["Sött","Fruktigt"]},
+{name:"Cuba Libre",recipe:[["Ljus Rom","4 cl"],["Limejuice","1 cl"],["Cola","Toppa upp"]],steps:"Fyll glas med is, häll rom och limejuice. Toppa med cola.",garnishes:["Limeklyfta"],profiles:["Sött","Bubbligt"]},
+{name:"Tequila Sunrise",recipe:[["Tequila","4 cl"],["Apelsinjuice","Toppa upp"],["Grenadin","1 cl"]],steps:"Häll tequila och apelsinjuice i ett isfyllt glas. Tillsätt grenadin försiktigt.",garnishes:["Apelsinskiva"],profiles:["Sött","Fruktigt"]},
+{name:"Black Russian",recipe:[["Vodka","4 cl"],["Kahlua","2 cl"]],steps:"Fyll glas med is. Häll i vodka och Kahlua.",profiles:["Starkt","Kaffe"]},
+{name:"White Russian",recipe:[["Vodka","4 cl"],["Kahlua","2 cl"],["Grädde","Toppa upp"]],steps:"Fyll glas med is. Häll i vodka och Kahlua, toppa med grädde.",profiles:["Krämigt","Kaffe"]},
+{name:"Moscow Mule",recipe:[["Vodka","4 cl"],["Limejuice","2 cl"],["Ginger Beer","Toppa upp"]],steps:"Fyll glas med is, häll i vodka och limejuice och toppa med ginger beer.",garnishes:["Limeklyfta"],profiles:["Fräscht","Bubbligt"]},
+{name:"Seabreeze",recipe:[["Vodka","4 cl"],["Tranbärsjuice","6 cl"],["Grapefruktjuice","4 cl"]],steps:"Fyll glas med is och häll i samtliga ingredienser.",profiles:["Surt","Fräscht","Fruktigt"]},
+{name:"Screaming Orgasm",recipe:[["Vodka","1 cl"],["Kahlua","1 cl"],["Baileys","1 cl"],["Amaretto","1 cl"],["Mjölk","4 cl"]],steps:"Fyll glas med is, häll i ingredienserna och rör om.",profiles:["Sött","Krämigt","Kaffe"]},
+{name:"Sex on the Beach",recipe:[["Vodka","2 cl"],["Peach Schnapps","2 cl"],["Tranbärsjuice","5 cl"],["Apelsinjuice","5 cl"]],steps:"Fyll glas med is. Häll i vodka och Peach Schnapps, följt av juicerna.",profiles:["Sött","Fräscht","Fruktigt"]},
+{name:"Cosmopolitan",recipe:[["Vodka","4 cl"],["Cointreau","2 cl"],["Tranbärsjuice","3 cl"],["Limejuice","1 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas.",garnishes:["Limeklyfta"],profiles:["Surt","Fräscht"]},
+{name:"Daiquiri",recipe:[["Ljus Rom","6 cl"],["Limejuice","3 cl"],["Sockerlag","2 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas.",profiles:["Surt","Starkt"]},
+{name:"French Martini",recipe:[["Vodka","4 cl"],["Chambord","2 cl"],["Ananasjuice","4 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas.",profiles:["Sött","Fruktigt"]},
+{name:"Lynchburg Lemonade",recipe:[["Whisky","4 cl"],["Cointreau","2 cl"],["Citronjuice","2 cl"],["Sockerlag","1 cl"],["Sodavatten","Toppa upp"]],steps:"Skaka whisky, Cointreau, citronjuice och sockerlag med is. Sila i glas med is och toppa med sodavatten.",profiles:["Sött","Surt","Fräscht"]},
+{name:"Tom Collins",recipe:[["Gin","6 cl"],["Citronjuice","3 cl"],["Sockerlag","2 cl"],["Sodavatten","Toppa upp"]],steps:"Skaka gin, citronjuice och sockerlag med is. Sila i glas med is och toppa med sodavatten.",profiles:["Surt","Fräscht","Bubbligt"]},
+{name:"Long Island Iced Tea",recipe:[["Vodka","1.5 cl"],["Gin","1.5 cl"],["Ljus Rom","1.5 cl"],["Tequila","1.5 cl"],["Cointreau","1.5 cl"],["Citronjuice","2 cl"],["Sockerlag","1 cl"],["Cola","Toppa upp"]],steps:"Skaka spritsorterna, citronjuice och sockerlag med is. Sila i ett isfyllt glas och toppa med cola.",profiles:["Starkt","Surt"]},
+{name:"Dry Martini",recipe:[["Gin","6 cl"],["Dry Vermouth","1 cl"]],steps:"Rör gin och vermouth med is. Sila upp i ett kylt martiniglas.",garnishes:["Oliv"],profiles:["Starkt"]},
+{name:"Manhattan",recipe:[["Whisky","6 cl"],["Sweet Vermouth","2 cl"],["Angostura","2 dash"]],steps:"Rör ingredienserna med is och sila upp i ett kylt glas.",garnishes:["Körsbär"],profiles:["Starkt"]},
+{name:"Rob Roy",recipe:[["Whisky","6 cl"],["Sweet Vermouth","2 cl"],["Angostura","2 dash"]],steps:"Rör ingredienserna med is och sila upp i ett kylt glas. Skotsk whisky är typisk.",garnishes:["Körsbär"],profiles:["Starkt"]},
+{name:"Batanga",recipe:[["Tequila","4 cl"],["Limejuice","1 cl"],["Cola","Toppa upp"],["Salt","Till glaskanten"]],steps:"Doppa glaskanten i limejuice och sedan salt. Fyll glaset med is, häll i tequila och toppa med cola.",profiles:["Sött","Bubbligt"]},
+{name:"Margarita",recipe:[["Tequila","4 cl"],["Cointreau","2 cl"],["Limejuice","2 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas, gärna med saltad kant.",profiles:["Surt","Starkt"]},
+{name:"Sidecar",recipe:[["Cognac","5 cl"],["Cointreau","2 cl"],["Citronjuice","2 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas, gärna med sockrad kant.",profiles:["Surt","Starkt"]},
+{name:"Amaretto Sour",recipe:[["Amaretto","5 cl"],["Citronjuice","3 cl"],["Sockerlag","1.5 cl"],["Äggvita","1.5 cl"]],steps:"Torrskaka först utan is. Skaka sedan med is och sila upp över is.",profiles:["Sött","Surt"]},
+{name:"Whiskey Sour",recipe:[["Whisky","6 cl"],["Citronjuice","3 cl"],["Sockerlag","1.5 cl"],["Äggvita","1.5 cl"]],steps:"Torrskaka först utan is. Skaka sedan med is och sila upp över is.",garnishes:["Körsbär"],profiles:["Surt","Starkt"]},
+{name:"Mojito",recipe:[["Ljus Rom","6 cl"],["Limejuice","2 cl"],["Sockerlag","2 cl"],["Mynta","8–12 blad"],["Sodavatten","Toppa upp"]],steps:"Klappa myntan lätt. Blanda med limejuice och sockerlag, tillsätt rom och is. Toppa med sodavatten.",profiles:["Sött","Surt","Fräscht","Bubbligt"]},
+{name:"Caipirinha",recipe:[["Cachaca","6 cl"],["Farinsocker","2 tsk"],["Limeklyfta","6 st"]],steps:"Muddla limeklyftor med socker. Tillsätt is och cachaça och rör om.",profiles:["Sött","Surt","Starkt"]},
+{name:"B-52",recipe:[["Kahlua","2 cl"],["Baileys","2 cl"],["Cointreau","2 cl"]],steps:"Häll försiktigt ingredienserna i lager i ett shotglas.",profiles:["Sött","Starkt","Kaffe"]},
+{name:"Old Fashioned",recipe:[["Whisky","6 cl"],["Sockerlag","1.5 cl"],["Angostura","2 dash"]],steps:"Rör ingredienserna med is. Servera över en stor iskub.",garnishes:["Apelsinskiva","Körsbär"],profiles:["Starkt"]},
+{name:"Dark & Stormy",recipe:[["Mörk Rom","4 cl"],["Limejuice","1 cl"],["Ginger Beer","Toppa upp"]],steps:"Fyll glas med is, häll i limejuice och ginger beer. Toppa med mörk rom.",garnishes:["Limeklyfta"],profiles:["Starkt","Bubbligt"]},
+{name:"White Lady",recipe:[["Gin","4 cl"],["Cointreau","2 cl"],["Citronjuice","2 cl"],["Sockerlag","1 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt cocktailglas.",profiles:["Surt","Starkt"]},
+{name:"Negroni",recipe:[["Gin","3 cl"],["Sweet Vermouth","3 cl"],["Campari","3 cl"]],steps:"Rör drinken med is och servera över is.",garnishes:["Apelsinskiva"],profiles:["Starkt"]},
+{name:"Aperol Spritz",recipe:[["Aperol","6 cl"],["Mousserande Vin","9 cl"],["Sodavatten","3 cl"]],steps:"Fyll ett stort vinglas med is. Häll i Aperol och mousserande vin, toppa med sodavatten.",garnishes:["Apelsinskiva"],profiles:["Sött","Bubbligt","Fräscht"]},
+{name:"Mimosa",recipe:[["Mousserande Vin","6 cl"],["Apelsinjuice","6 cl"]],steps:"Häll lika delar mousserande vin och apelsinjuice i ett glas.",profiles:["Sött","Bubbligt","Fruktigt"]},
+{name:"Espresso Martini",recipe:[["Vodka","4 cl"],["Kahlua","2 cl"],["Espresso","3 cl"],["Sockerlag","1 cl"]],steps:"Skaka ingredienserna kraftigt med is och dubbelsila i ett kylt martiniglas.",profiles:["Sött","Starkt","Kaffe"]},
+{name:"Kamikaze",recipe:[["Vodka","2 cl"],["Cointreau","1 cl"],["Limejuice","1 cl"]],steps:"Skaka ingredienserna med is och sila upp i ett kylt glas.",profiles:["Surt","Starkt"]},
+{name:"Irish Coffee",recipe:[["Whisky","4 cl"],["Kaffe","Toppa upp"],["Farinsocker","1 barsked"],["Grädde","Lättvispad"]],steps:"Lös upp farinsocker i varmt kaffe, tillsätt whisky och toppa med lättvispad grädde.",profiles:["Sött","Krämigt","Kaffe"]}
 ];
 
-const garnishesByDrink = {
-"Gin & Tonic":["Limeklyfta"],
-"Cuba Libre":["Limeklyfta"],
-"Tequila Sunrise":["Apelsinskiva"],
-"Moscow Mule":["Limeklyfta"],
-"Cosmopolitan":["Limeklyfta"],
-"Dry Martini":["Oliv"],
-"Manhattan":["Körsbär"],
-"Rob Roy":["Körsbär"],
-"Whiskey Sour":["Körsbär"],
-"Old Fashioned":["Apelsinskiva","Körsbär"],
-"Dark & Stormy":["Limeklyfta"],
-"Negroni":["Apelsinskiva"],
-"Aperol Spritz":["Apelsinskiva"]
-};
-
-const drinkProfiles = {
-"Gin & Tonic":["Fräscht","Bubbligt"],
-"Screwdriver":["Sött","Fruktigt"],
-"Cuba Libre":["Sött","Bubbligt"],
-"Tequila Sunrise":["Sött","Fruktigt"],
-"Black Russian":["Starkt","Kaffe"],
-"White Russian":["Krämigt","Kaffe"],
-"Moscow Mule":["Fräscht","Bubbligt"],
-"Seabreeze":["Surt","Fräscht","Fruktigt"],
-"Screaming Orgasm":["Sött","Krämigt","Kaffe"],
-"Sex on the Beach":["Sött","Fräscht","Fruktigt"],
-"Cosmopolitan":["Surt","Fräscht"],
-"Daiquiri":["Surt","Starkt"],
-"French Martini":["Sött","Fruktigt"],
-"Lynchburg Lemonade":["Sött","Surt","Fräscht"],
-"Tom Collins":["Surt","Fräscht","Bubbligt"],
-"Long Island Iced Tea":["Starkt","Surt"],
-"Dry Martini":["Starkt"],
-"Manhattan":["Starkt"],
-"Rob Roy":["Starkt"],
-"Batanga":["Sött","Bubbligt"],
-"Margarita":["Surt","Starkt"],
-"Sidecar":["Surt","Starkt"],
-"Amaretto Sour":["Sött","Surt"],
-"Whiskey Sour":["Surt","Starkt"],
-"Mojito":["Sött","Surt","Fräscht","Bubbligt"],
-"Caipirinha":["Sött","Surt","Starkt"],
-"B-52":["Sött","Starkt","Kaffe"],
-"Old Fashioned":["Starkt"],
-"Dark & Stormy":["Starkt","Bubbligt"],
-"White Lady":["Surt","Starkt"],
-"Negroni":["Starkt"],
-"Aperol Spritz":["Sött","Bubbligt","Fräscht"],
-"Mimosa":["Sött","Bubbligt","Fruktigt"],
-"Espresso Martini":["Sött","Starkt","Kaffe"],
-"Kamikaze":["Surt","Starkt"],
-"Irish Coffee":["Sött","Krämigt","Kaffe"]
-};
 
 const profileOptions = [
 {name:"Sött",emoji:"🍬"},
@@ -529,21 +475,6 @@ const profileOptions = [
 {name:"Kaffe",emoji:"☕"},
 {name:"Fruktigt",emoji:"🍍"}
 ];
-
-const drinkOrder = [
-"Gin & Tonic","Mojito","Moscow Mule","Cuba Libre","Dark & Stormy",
-"Tom Collins","Screwdriver","Seabreeze","Sex on the Beach",
-"Tequila Sunrise","Aperol Spritz","Mimosa","Daiquiri","Margarita",
-"Cosmopolitan","Kamikaze","White Lady","Whiskey Sour","Amaretto Sour",
-"Sidecar","Lynchburg Lemonade","French Martini","Dry Martini",
-"Manhattan","Rob Roy","Negroni","Old Fashioned",
-"Long Island Iced Tea","Batanga","Caipirinha","Black Russian",
-"White Russian","Screaming Orgasm","B-52","Espresso Martini","Irish Coffee"
-];
-
-const drinkOrderIndex = new Map(
-  drinkOrder.map((name,index)=>[name,index])
-);
 
 const ingredientsDiv=document.getElementById("ingredients");
 const resultsDiv=document.getElementById("results");
@@ -685,12 +616,7 @@ function renderFavorites(){
 
   const selected=selectedIngredients();
 
-  const favs=drinks
-    .filter(d=>favorites.includes(d.name))
-    .sort((a,b)=>
-      (drinkOrderIndex.get(a.name)??999)-
-      (drinkOrderIndex.get(b.name)??999)
-    );
+const favs=drinks.filter(d=>favorites.includes(d.name));
 
   document.querySelector("#favoritesSection summary").textContent=
     `⭐ Mina favoriter (${favs.length})`;
@@ -828,7 +754,7 @@ function getShoppingItems(chosen){
       needed.get(item).drinks.push(d.name);
     });
 
-    (garnishesByDrink[d.name]||[]).forEach(item=>{
+    (d.garnishes||[]).forEach(item=>{
       if(!needed.has(item)){
         needed.set(item,{optional:true,drinks:[]});
       }
@@ -894,7 +820,7 @@ function renderShoppingList(){
       <li>${esc(amount)} ${esc(item)}</li>
     `).join("");
 
-    const garnishes=(garnishesByDrink[d.name]||[]).map(item=>`
+    const garnishes=(d.garnishes||[]).map(item=>`
       <li>${esc(item)} <small class="muted">(valfri garnering)</small></li>
     `).join("");
 
@@ -1106,14 +1032,14 @@ function createDrinkCard(drink,selected,context="results"){
     </li>
   `).join("");
 
-  const garnishes=(garnishesByDrink[drink.name]||[])
+  const garnishes=(drink.garnishes||[])
     .map(g=>`
       <li style="color:#888">
         Garnering: ${esc(g)} (valfritt)
       </li>
     `).join("");
 
-  const profile=(drinkProfiles[drink.name]||[]).join(" · ");
+  const profile=(drink.profiles||[]).join(" · ");
 
   details.innerHTML=`
     <p><small>Smakprofil: ${esc(profile||"Ej angiven")}</small></p>
@@ -1198,9 +1124,9 @@ function updateResults({restorePosition=true}={}){
       !term||
       d.name.toLowerCase().includes(term)||
       d.recipe.some(r=>r[0].toLowerCase().includes(term))||
-      (garnishesByDrink[d.name]||[]).some(g=>g.toLowerCase().includes(term));
+      (d.garnishes||[]).some(g=>g.toLowerCase().includes(term));
 
-    const p=drinkProfiles[d.name]||[];
+    const p=d.profiles||[];
 
     const matchesProfile=
       !selectedProfiles.length||
@@ -1227,11 +1153,10 @@ function updateResults({restorePosition=true}={}){
   });
 
   ranked.sort((a,b)=>
-    Number(b.possible)-Number(a.possible)||
-    b.count-a.count||
-    (drinkOrderIndex.get(a.drink.name)??999)-
-    (drinkOrderIndex.get(b.drink.name)??999)
-  );
+  Number(b.possible)-Number(a.possible)||
+  b.count-a.count||
+  drinks.indexOf(a.drink)-drinks.indexOf(b.drink)
+);
 
   resultsDiv.innerHTML="";
 
