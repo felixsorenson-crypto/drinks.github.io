@@ -1161,31 +1161,7 @@ function createDrinkCard(drink,selected,context="results"){
   details.innerHTML=`
     <p><small>Smakprofil: ${esc(profile||"Ej angiven")}</small></p>
 
-    <div class="rating-panel">
-      <strong>Ditt betyg</strong>
 
-      <div class="rating-stars" role="group"
-        aria-label="Betygsätt ${esc(drink.name)}">
-        ${[1,2,3,4,5].map(value=>`
-          <button type="button"
-            class="rating-star ${value<=rating?"active":""}"
-            data-rating="${value}"
-            aria-label="${value} av 5 stjärnor"
-            aria-pressed="${value===rating}">
-            ★
-          </button>
-        `).join("")}
-      </div>
-
-      <small class="muted">
-        ${rating?rating+" av 5 stjärnor":"Inte betygsatt ännu"}
-      </small>
-
-      ${rating
-        ?'<button type="button" class="action-btn" data-clear-rating>Ta bort betyg</button>'
-        :""
-      }
-    </div>
 
     <h4>Recept</h4>
 
@@ -1212,6 +1188,32 @@ function createDrinkCard(drink,selected,context="results"){
             ?"✓ Har allt"
             :"🛒 + Inköpslista")}
       </button>
+    </div>
+    
+        <div class="rating-panel">
+      <strong>Ditt betyg</strong>
+
+      <div class="rating-stars" role="group"
+        aria-label="Betygsätt ${esc(drink.name)}">
+        ${[1,2,3,4,5].map(value=>`
+          <button type="button"
+            class="rating-star ${value<=rating?"active":""}"
+            data-rating="${value}"
+            aria-label="${value} av 5 stjärnor"
+            aria-pressed="${value===rating}">
+            ★
+          </button>
+        `).join("")}
+      </div>
+
+      <small class="muted">
+        ${rating?rating+" av 5 stjärnor":"Inte betygsatt ännu"}
+      </small>
+
+      ${rating
+        ?'<button type="button" class="action-btn" data-clear-rating>Ta bort betyg</button>'
+        :""
+      }
     </div>
   `;
 
